@@ -1,0 +1,12 @@
+{
+    "env": {
+        "DB_NAME": "project1",
+        "DB_USER": "praveen",
+        "DB_PASSWORD": "cpMVwV2QRO7nPJlM",
+        "SECRET_OR_KEY": "supersecret",
+        "EMAIL": "praveen.challa@infoesearch.com",
+        "PASSWORD": "Prvndp@123",
+        "FROM": "praveen.challa@infoesearch.com",
+        "TO": "praveenking880@gmail.com"
+    }
+}
