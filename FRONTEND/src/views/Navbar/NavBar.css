@@ -1,0 +1,29 @@
+#search {
+    width: 25%;
+}
+
+@media( min-width: 992px ) {
+    .navbar .container {
+        width: 78%;
+    }
+}
+
+@media(max-width: 540px) {
+    #search {
+        display: none;
+    }
+}
+
+@media(max-width: 400px) {
+    .navbar {
+        height: 10%;
+    }
+
+    .navbar-brand img {
+        height: 40px;
+    }
+
+    .navbar-nav .MuiSvgIcon-root {
+        font-size: 2.5rem;
+    }
+}
