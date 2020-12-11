@@ -12,3 +12,19 @@
         margin-top: 54px !important;
     }
 }
+
+#news_feed #suggestion_row {
+    width: 60%;
+    border-radius: 4px;
+    padding: 20px 0;
+}
+
+#news_feed #suggestion_row #suggestion_col{
+    height: 200px;
+}
+
+@media (max-width: 991px) {
+    #news_feed #suggestion_row {
+        width: 105%;
+    }
+}
