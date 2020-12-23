@@ -2,6 +2,10 @@
     #news_feed {
         width: 90% !important;
     }
+
+    #news_feed #suggestion_row #suggestion_col {
+        max-width: 100% !important;
+    }
 }
 
 @media (max-width: 570px) {
@@ -10,6 +14,8 @@
         padding-left: 0px !important;
         padding-top: 0px !important;
         margin-top: 54px !important;
+        width: 100% !important;
+        margin-left: 2px !important;
     }
 }
 
@@ -27,4 +33,8 @@
     #news_feed #suggestion_row {
         width: 105%;
     }
+}
+
+#suggestion_col .d-flex::-webkit-scrollbar {
+    display: none;
 }

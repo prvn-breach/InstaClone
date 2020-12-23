@@ -7,6 +7,9 @@ import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import ViewModuleOutlinedIcon from '@material-ui/icons/ViewModuleOutlined';
 import BookmarkBorderOutlinedIcon from '@material-ui/icons/BookmarkBorderOutlined';
 import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined';
+import PersonIcon from '@material-ui/icons/Person';
+import DoneIcon from '@material-ui/icons/Done';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
 import "./Profile.css";
 
@@ -46,11 +49,36 @@ export default class Profile extends Component {
                     <div className="col-8" id="profile_column_2">
                         <div className="d-flex" id="profile_flex_1">
                             <div className="p-2 display-4" id="name">prvn_kumars</div>
-                            <div className="p-3">
+                            <div className="pt-3" id="edit_icon">
                                 <IconButton component="span">
                                     <EditOutlinedIcon />
                                 </IconButton>
-                                <button className="btn border border-secondary">Edit Profile</button>
+                                {/* <button className="btn border border-secondary" id="edit_btn">Edit Profile</button> */}
+                            </div>
+                            <div className="m-0 p-2" id="additional_options">
+                                <div className="d-flex">
+                                    <button 
+                                        className="btn border mr-2" 
+                                        size="sm"
+                                        style={{backgroundColor: 'rgba(var(--b3f,250,250,250),1)'}}
+                                        id="message"
+                                    >Message</button>
+                                    <button 
+                                        className="border mr-2 rounded"
+                                        style={{backgroundColor: 'rgba(var(--b3f,250,250,250),1)'}}
+                                        id="follow_icon"
+                                    >
+                                        <PersonIcon /> 
+                                        <DoneIcon />
+                                    </button>
+                                    <button
+                                        className="border rounded"
+                                        style={{backgroundColor: 'rgba(var(--b3f,250,250,250),1)'}}
+                                        id="arrow_down_icon"
+                                    >
+                                        <ArrowDropDownIcon />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div className="d-flex ml-1" id="profile_flex_2">
@@ -77,7 +105,7 @@ export default class Profile extends Component {
                         </li>
                         <li className="list-inline-item text-center mr-5">
                             <span className="font-weight-bold d-block">0</span>
-                            <span className="text-muted">People are following</span>
+                            <span className="text-muted">Following</span>
                         </li>
                     </ul>
                 </div>

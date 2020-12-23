@@ -13,7 +13,6 @@ export default class Posts extends Component {
                 </div>
                 
                 <Post />
-                <Post />
             </div>
         )
     }

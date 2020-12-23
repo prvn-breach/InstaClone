@@ -1,0 +1,11 @@
+.accounts {
+    flex-grow: 1;
+    background-color: #fff;
+    display: flex;
+    height: 224px;
+}
+.tabs button:focus {
+    border-color: #fff;
+    /* border-left: 1px solid; */
+    /* border-right: 1px; */
+}

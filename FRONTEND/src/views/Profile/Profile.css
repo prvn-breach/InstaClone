@@ -17,11 +17,12 @@
         height: 100% !important;
     }
 
+
     #profile_column_2 #name {
         font-size: 27px;
     }
 
-    #profile_column_2 .MuiIconButton-root {
+    #profile_column_2 #edit_icon .MuiIconButton-root {
         display: none;
     }
 
@@ -29,7 +30,7 @@
         flex-direction: column;
     }
 
-    #profile_flex_1 button{
+    #profile_flex_1 #edit_btn{
         padding: 0 !important;
         width: 100% !important;
     }
@@ -107,3 +108,7 @@
         margin: 0 !important;
     }
 }
+
+/* #profile_column_2 #additional_options span {
+    height: 200px !important;
+} */

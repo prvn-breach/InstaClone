@@ -22,6 +22,7 @@ import Dashboard from "./views/components/landing/Dashboard";
 import NewsFeed from "./views/NewsFeed/NewsFeed"; //testing
 import Profile from "./views/components/profile/Profile";
 import NewProfile from "./views/Profile/Profile";
+import Accounts from "./views/Accounts/Accounts";
 
 // Check auth token
 if (localStorage['jwtToken']) {
@@ -62,6 +63,7 @@ function App() {
 						<Route exact path="/newsfeed" component={NewsFeed} />
 						<Route exact path="/testprofile" component={NewProfile} />
 						<Route exact path="/profile/:username" component={Profile} />
+						<Route exact path="/accounts/:tab" component={Accounts} />
 
 						{/* REDIRECTION */}
 						<Redirect to="/login" />
