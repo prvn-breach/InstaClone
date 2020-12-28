@@ -50,7 +50,7 @@ function App() {
 		<Provider store={store}>
 			<Router>
 				<Navbar />
-				<div className="container">
+				<div className="">
 					<Switch>
 						{/* AUTH */}
 						<Route exact path="/login" component={Login} />

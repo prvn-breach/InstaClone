@@ -109,6 +109,16 @@
     }
 }
 
-/* #profile_column_2 #additional_options span {
-    height: 200px !important;
-} */
+@media (max-width: 460px) {
+    #profile_page {
+        padding: 0 !important;
+    }
+
+    #profile_page #profile_tabs #profile_posts_row {
+        margin:  0 !important;
+    }
+
+    #profile_page #profile_tabs #profile_posts_row #profile_posts_col_1 img{
+        width: 104% !important;
+    }
+}

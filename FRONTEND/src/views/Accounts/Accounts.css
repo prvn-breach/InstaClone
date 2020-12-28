@@ -9,3 +9,71 @@
     /* border-left: 1px solid; */
     /* border-right: 1px; */
 }
+
+@media(max-width: 940px) {
+    .accounts {
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        padding-right: 1 !important;
+        padding-left: 0 !important;
+    }
+}
+
+@media(max-width: 735px) {
+    .accounts .tabs {
+        display: none !important;
+    }
+}
+
+@media(min-width:961px) {
+    #accounts_page {
+        max-width: 960px !important;
+    }
+}
+
+@media (min-width: 1130px) {
+    #accounts_page {
+        max-width: 1050px !important;
+    }
+}
+
+@media (max-width: 960px) {
+    #accounts_page {
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding-right: 1px !important;
+        padding-left: 1px !important;
+    }
+}
+
+@media (min-width: 576px){
+    #accounts_page {
+        max-width: 100%;
+    }
+}
+
+/* .accounts .tabs {
+    padding-left: 10px !important;
+} */
+
+.accounts .tabs  button{
+    text-transform: capitalize;
+    font-size: 17px;
+    font-weight: 400;
+    opacity: 1 !important;
+    padding-left: 40px !important;
+    padding-right: 40px !important;
+}
+
+.accounts .tabs button .MuiTab-wrapper {
+    align-items: start;
+}
+
+.accounts .tabs .MuiTab-textColorInherit.Mui-selected {
+    font-weight: bold;
+}
+
+.accounts div[role="tabpanel"] {
+    width: 75% !important;
+}
