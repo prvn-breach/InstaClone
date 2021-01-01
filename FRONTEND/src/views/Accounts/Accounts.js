@@ -3,6 +3,8 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import TabPanel from "./TabPanel/TabPanel";
 
+import EditPage from "./EditPage/EditPage";
+
 import "./Accounts.css";
 
 class Accounts extends Component {
@@ -51,16 +53,7 @@ class Accounts extends Component {
                         <Tab label="Login Activity" {...this.a11yProps(2)} />
                     </Tabs>
                     <TabPanel value={this.state.value} index={0}>
-                        <div className="p-5">
-                            <div className="row">
-                                <div className="col-md-3 text-right">
-                                    <span className="font-weight-bold">Name</span>
-                                </div>
-                                <div className="col-md-9">
-                                    <input type="text" className="form-control" />
-                                </div>
-                            </div>
-                        </div>
+                        <EditPage />
                     </TabPanel>
                     <TabPanel value={this.state.value} index={1}>
                         Tab Panel 2

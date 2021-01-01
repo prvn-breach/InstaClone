@@ -2,7 +2,7 @@
     flex-grow: 1;
     background-color: #fff;
     display: flex;
-    height: 224px;
+    height: 100%;
 }
 .tabs button:focus {
     border-color: #fff;
@@ -22,6 +22,12 @@
 @media(max-width: 735px) {
     .accounts .tabs {
         display: none !important;
+    }
+}
+
+@media(min-width: 735px) {
+    .accounts div[role="tabpanel"] {
+        padding: 20px 80px !important;
     }
 }
 
@@ -57,6 +63,10 @@
     padding-left: 10px !important;
 } */
 
+.accounts .tabs {
+    width: 40% !important;
+}
+
 .accounts .tabs  button{
     text-transform: capitalize;
     font-size: 17px;
@@ -75,5 +85,6 @@
 }
 
 .accounts div[role="tabpanel"] {
-    width: 75% !important;
+    width: 100% !important;
+    /* padding: 20px 80px !important; */
 }
