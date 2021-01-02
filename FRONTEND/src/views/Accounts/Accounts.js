@@ -32,14 +32,23 @@ class Accounts extends Component {
         };
     }
 
-    handleChange(event, newValue){
-        this.setState({value: newValue});
+    handleChange(event, newValue) {
+        let keys = Object.keys(this.state.params);
+        let tab_name = keys.find(key => {
+            if (this.state.params[key] == newValue) return key;
+        });
+
+        // Update TabName in URL
+        this.props.history.push("/accounts/" + tab_name);
+
+        // Update state
+        this.setState({ value: newValue });
     };
 
     render() {
         return (
             <div className="container" id="accounts_page">
-                <div className="accounts border" style={{marginTop: '80px'}}>
+                <div className="accounts border" style={{ marginTop: '80px' }}>
                     <Tabs
                         orientation="vertical"
                         variant="scrollable"

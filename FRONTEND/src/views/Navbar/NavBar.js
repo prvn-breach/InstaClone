@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Link } from "react-router-dom";
 
 import "./NavBar.css";
 
@@ -11,11 +12,11 @@ export default class NavBar extends Component {
         return (
             <nav className="navbar navbar-expand-sm fixed-top navbar-light border-bottom bg-white" style={{ padding: '.1rem 1rem' }}>
                 <div className="container">
-                    <a href="" className="navbar-brand">
+                    <Link to="/newsfeed" className="navbar-brand">
                         <img 
                             src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
                         />
-                    </a>
+                    </Link>
 
                     <input 
                         id="search"
