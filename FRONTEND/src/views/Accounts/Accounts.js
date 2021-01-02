@@ -4,6 +4,7 @@ import Tab from '@material-ui/core/Tab';
 import TabPanel from "./TabPanel/TabPanel";
 
 import EditPage from "./EditPage/EditPage";
+import ChangePwd from "./ChangePwd/ChangePwd";
 
 import "./Accounts.css";
 
@@ -36,7 +37,6 @@ class Accounts extends Component {
     };
 
     render() {
-
         return (
             <div className="container" id="accounts_page">
                 <div className="accounts border" style={{marginTop: '80px'}}>
@@ -56,7 +56,7 @@ class Accounts extends Component {
                         <EditPage />
                     </TabPanel>
                     <TabPanel value={this.state.value} index={1}>
-                        Tab Panel 2
+                        <ChangePwd />
                     </TabPanel>
                     <TabPanel value={this.state.value} index={2}>
                         Tab Panel 3

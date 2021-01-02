@@ -1,10 +1,22 @@
 import React, { Component } from 'react'
 
+import ImageUpload from "../../../hooks/ImageUpload";
+
 export default class EditPage extends Component {
     render() {
         return (
             <div>
                 <form id="edit_page">
+                    <div className="form-group">
+                        <div className="col-6 d-flex m-0 p-0 justify-content-between">
+                            <ImageUpload 
+                                width="50"
+                                style={ {cursor: "pointer"} }
+                            />
+                            <span className="h4 text-dark">prvndp6</span>
+                        </div>
+                    </div>
+
                     <div className="form-group row">
                         <label className="col-sm-2 col-form-label font-weight-bold">Name</label>
                         <div className="col-sm-10">
