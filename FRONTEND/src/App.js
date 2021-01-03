@@ -18,6 +18,7 @@ import ChangePassword from './views/components/auth/ChangePassword';
 
 // import Navbar from "./components/layout/Navbar";
 import Navbar from "./views/Navbar/NavBar";
+import FootNavBar from "./views/FootNavBar/FootNavBar";
 import Dashboard from "./views/components/landing/Dashboard";
 import NewsFeed from "./views/NewsFeed/NewsFeed"; //testing
 import Profile from "./views/components/profile/Profile";
@@ -40,39 +41,41 @@ if (localStorage['jwtToken']) {
 		store.dispatch(logoutUser());
 
 		// Redirect to login
-		window.location.href="/login";
+		window.location.href = "/login";
 	}
 }
 
 function App() {
-  return (
-	<div className="App">
-		<Provider store={store}>
-			<Router>
-				<Navbar />
-				<div className="">
-					<Switch>
-						{/* AUTH */}
-						<Route exact path="/login" component={Login} />
-						<Route exact path="/register" component={Register} />
-						<Route exact path="/forget-password" component={ForgetPassword} />
-						<Route exact path="/change-password/:userId/:uuid" component={ChangePassword} />
+	return (
+		<div className="App">
+			<Provider store={store}>
+				<Router>
+					<Navbar />
+					<div className="">
+						<Switch>
+							{/* AUTH */}
+							<Route exact path="/login" component={Login} />
+							<Route exact path="/register" component={Register} />
+							<Route exact path="/forget-password" component={ForgetPassword} />
+							<Route exact path="/change-password/:userId/:uuid" component={ChangePassword} />
 
-						{/* PAGES */}
-						<Route exact path="/" component={Dashboard} />
-						<Route exact path="/newsfeed" component={NewsFeed} />
-						<Route exact path="/testprofile" component={NewProfile} />
-						<Route exact path="/profile/:username" component={Profile} />
-						<Route exact path="/accounts/:tab" component={Accounts} />
+							{/* PAGES */}
+							<Route exact path="/" component={Dashboard} />
+							<Route exact path="/newsfeed" component={NewsFeed} />
+							<Route exact path="/testprofile" component={NewProfile} />
+							<Route exact path="/profile/:username" component={Profile} />
+							<Route exact path="/accounts/:tab" component={Accounts} />
 
-						{/* REDIRECTION */}
-						<Redirect to="/login" />
-					</Switch>
-				</div>
-			</Router>
-		</Provider>
-	</div>
-  );
+							{/* REDIRECTION */}
+							<Redirect to="/login" />
+						</Switch>
+					</div>
+					
+					<FootNavBar />
+				</Router>
+			</Provider>
+		</div>
+	);
 }
 
 export default App;

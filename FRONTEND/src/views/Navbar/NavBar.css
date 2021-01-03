@@ -3,7 +3,7 @@
 }
 
 @media( min-width: 992px ) {
-    .navbar .container {
+    #top-navbar .container {
         width: 78%;
     }
 }
@@ -15,15 +15,15 @@
 }
 
 @media(max-width: 400px) {
-    .navbar {
+    #top-navbar {
         height: 10%;
     }
 
-    .navbar-brand img {
+    #top-navbar-brand img {
         height: 40px;
     }
 
-    .navbar-nav .MuiSvgIcon-root {
+    #top-navbar-nav .MuiSvgIcon-root {
         font-size: 2.5rem;
     }
 }

@@ -32,6 +32,7 @@ export default class Suggestions extends Component {
                         <Suggestion />
                         <Suggestion />
                         <Suggestion />
+                        <Suggestion />
                     </div>
                 </div>
             </div>

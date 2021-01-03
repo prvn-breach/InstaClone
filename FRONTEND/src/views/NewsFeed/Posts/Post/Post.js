@@ -19,7 +19,7 @@ export default class Post extends Component {
                 <div className="card">
 
                     {/* HEADER */}
-                    <div className="card-header border-bottom-0 p-3 mb-0">
+                    <div className="card-header border-bottom-0 p-3 mb-0 bg-white">
                         <img
                             src="https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-alt-512.png"
                             alt=""
