@@ -19,7 +19,7 @@
     }
 
     #posts_column #story_column {
-        margin-top: 10px !important;
+        /* margin-top: 1px !important; */
     }
 
     #posts_column #story_column .card {

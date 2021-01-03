@@ -10,12 +10,12 @@ export default class ProfilePosts extends Component {
                         className="p-0 m-0 w-100 h-100"
                     />
                 </div>
-                <div className="col-sm-7 p-0 m-0 my-auto" id="profile_posts_col_2">
+                <div className="col-sm-7 p-5 m-0 my-auto" id="profile_posts_col_2">
                     <div className="text-center">
                         <span className="font-weight-bold h5 d-block">
                             Start capturing and sharing your sweetest moments.
-                                </span>
-                        <span className="d-block">Get the app to share your first photo or video.</span>
+                        </span>
+                        <span className="d-block" style={{fontSize: '14px'}}>Get the app to share your first photo or video.</span>
                     </div>
                 </div>
             </div>

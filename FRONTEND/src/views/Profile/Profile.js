@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Link } from "react-router-dom";
 
 import ProfileTabs from "./ProfileTabs/ProfileTabs";
 import ImageUpload from "../../hooks/ImageUpload";
@@ -27,7 +28,7 @@ export default class Profile extends Component {
         return (
             <div className="container" id="profile_page">
                 <div className="mt-3 pt-3" id="profile">
-                    <div className="row p-5" id="profile_row_1">
+                    <div className="row m-0 p-5" id="profile_row_1">
                         <div className="col-4" id="profile_column_1">
                             <ImageUpload 
                                 height="160"
@@ -39,9 +40,9 @@ export default class Profile extends Component {
                             <div className="d-flex" id="profile_flex_1">
                                 <div className="p-2 display-4" id="name">prvn_kumars</div>
                                 <div className="pt-3" id="edit_icon">
-                                    <IconButton component="span">
-                                        <EditOutlinedIcon />
-                                    </IconButton>
+                                    <Link to="/accounts/edit">
+                                        <IconButton component="span"><EditOutlinedIcon /></IconButton>
+                                    </Link>
                                     {/* <button className="btn border border-secondary" id="edit_btn">Edit Profile</button> */}
                                 </div>
                                 <div className="m-0" id="additional_options">
@@ -104,31 +105,31 @@ export default class Profile extends Component {
                     <div className="row border-top justify-content-center align-items-center" id="profile_row_3">
                         <ul className="list-inline mt-3" style={{ fontSize: '14px', fontWeight: '450', letterSpacing: '2px' }}>
                             <li className="list-inline-item mx-5" onClick={() => this.setState({sub_page: "posts"})}>
-                                <IconButton component="span" color={this.state.sub_page == 'posts' ? "primary" : "default"}>
+                                <IconButton component="span" color={this.state.sub_page === 'posts' ? "primary" : "default"}>
                                     <ViewModuleOutlinedIcon />
                                 </IconButton>
                                 <span className={"tab "+
-                                        (this.state.sub_page == 'posts' 
+                                        (this.state.sub_page === 'posts' 
                                             ? "font-weight-bold"
                                             : "text-muted")
                                 }>POSTS</span>
                             </li>
                             <li className="list-inline-item mx-5" onClick={() => this.setState({sub_page: "saved"})}>
-                                <IconButton component="span" color={this.state.sub_page == 'saved' ? "primary" : "default"}>
+                                <IconButton component="span" color={this.state.sub_page === 'saved' ? "primary" : "default"}>
                                     <BookmarkBorderOutlinedIcon />
                                 </IconButton>
                                 <span className={"tab "+
-                                    (this.state.sub_page == 'saved' 
+                                    (this.state.sub_page === 'saved' 
                                         ? "font-weight-bold"
                                         : "text-muted")
                                 }>SAVED</span>
                             </li>
                             <li className="list-inline-item mx-5" onClick={() => this.setState({sub_page: "tagged"})}>
-                                <IconButton component="span" color={this.state.sub_page == 'tagged' ? "primary" : "default"}>
+                                <IconButton component="span" color={this.state.sub_page === 'tagged' ? "primary" : "default"}>
                                     <LocalOfferOutlinedIcon />
                                 </IconButton>
                                 <span className={"tab "+
-                                    (this.state.sub_page == 'tagged' 
+                                    (this.state.sub_page === 'tagged' 
                                         ? "font-weight-bold"
                                         : "text-muted")
                                 }>TAGGED</span>

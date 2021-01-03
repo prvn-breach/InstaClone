@@ -15,7 +15,7 @@ import "./Post.css";
 export default class Post extends Component {
     render() {
         return (
-            <div className="mb-5">
+            <div className="mb-4">
                 <div className="card">
 
                     {/* HEADER */}
@@ -63,6 +63,7 @@ export default class Post extends Component {
 
                     {/* COMMENTS */}
                     <div id="comments">
+                        <Comment />
                         <Comment />
                         <Comment />
                         <Comment />

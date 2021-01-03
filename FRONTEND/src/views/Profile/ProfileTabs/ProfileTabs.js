@@ -8,15 +8,15 @@ export default class ProfileTabs extends Component {
     render() {
         let sub_page;
 
-        if (this.props.page == "posts") {
+        if (this.props.page === "posts") {
             sub_page = <ProfilePosts />;
         }
 
-        if (this.props.page == "saved") {
+        if (this.props.page === "saved") {
             sub_page = <SavedPosts />;
         }
 
-        if (this.props.page == "tagged") {
+        if (this.props.page === "tagged") {
             sub_page = <Tagged />;
         }
 

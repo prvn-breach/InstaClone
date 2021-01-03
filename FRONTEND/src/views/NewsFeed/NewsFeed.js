@@ -9,7 +9,7 @@ import "./NewsFeed.css";
 export default class NewsFeed extends Component {
     render() {
         return (
-            <div className="container mt-5 pt-5" id="news_feed">
+            <div className="container mt-3 pt-5" id="news_feed">
                 <div className="row">
 
                     {/* LEFT SIDE POSTS */}

@@ -1,3 +1,7 @@
+#profile_page {
+    overflow-x: hidden;
+}
+
 @media only screen and (max-width: 768px) {
     #profile .row    {
         padding-left: 0 !important;
@@ -107,6 +111,10 @@
         padding: 0 !important;
         margin: 0 !important;
     }
+
+    #profile_tabs #profile_posts_row #profile_posts_col_1 {
+        order: 2;
+    }
 }
 
 @media (max-width: 460px) {
@@ -120,5 +128,11 @@
 
     #profile_page #profile_tabs #profile_posts_row #profile_posts_col_1 img{
         width: 104% !important;
+    }
+}
+
+@media (max-width: 991px) {
+    #profile_page {
+        max-width: none !important;
     }
 }
