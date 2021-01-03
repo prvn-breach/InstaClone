@@ -24,6 +24,7 @@ import NewsFeed from "./views/NewsFeed/NewsFeed"; //testing
 import Profile from "./views/components/profile/Profile";
 import NewProfile from "./views/Profile/Profile";
 import Accounts from "./views/Accounts/Accounts";
+import ChatBox from "./views/ChatBox/ChatBox";
 
 // Check auth token
 if (localStorage['jwtToken']) {
@@ -65,6 +66,7 @@ function App() {
 							<Route exact path="/testprofile" component={NewProfile} />
 							<Route exact path="/profile/:username" component={Profile} />
 							<Route exact path="/accounts/:tab" component={Accounts} />
+							<Route exact path="/inbox" component={ChatBox} />
 
 							{/* REDIRECTION */}
 							<Redirect to="/login" />

@@ -1,5 +1,17 @@
+#top-navbar {
+    padding: 6px 20px 4px 20px !important;
+}
+
 #search {
     width: 25%;
+}
+
+#top-navbar-nav li{
+    margin-left: 20px;
+}
+
+#top-navbar-nav li svg {
+    cursor: pointer;
 }
 
 @media( min-width: 992px ) {
@@ -14,16 +26,35 @@
     }
 }
 
-@media(max-width: 400px) {
-    #top-navbar {
-        height: 10%;
+@media (max-width: 570px) {
+    #top-navbar .container {
+        display: flex;
+        justify-content: space-between;
     }
 
-    #top-navbar-brand img {
-        height: 40px;
+    #top-navbar .container #search {
+        display: none;
     }
 
-    #top-navbar-nav .MuiSvgIcon-root {
-        font-size: 2.5rem;
+    #top-navbar #top-navbar-nav #home{
+        display: none;
+    }
+
+    #top-navbar #top-navbar-nav #profile{
+        display: none;
+    }
+
+    #top-navbar #top-navbar-nav #heart{
+        display: none;
+    }
+
+    #top-navbar #top-nav-icons {
+        width: 0 !important;
+    }
+}
+
+@media (min-width: 571px) {
+    #top-navbar .container #camera {
+        display: none;
     }
 }
