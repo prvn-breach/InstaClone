@@ -42,16 +42,24 @@ if (localStorage['jwtToken']) {
 		store.dispatch(logoutUser());
 
 		// Redirect to login
-		window.location.href = "/login";
+		window.location.replace("/login");
+	}
+} else {
+	if (!window.location.href.includes("/login")) {
+		window.location.replace("/login");
 	}
 }
 
-function App() {
+const App = () => {
 	return (
 		<div className="App">
 			<Provider store={store}>
 				<Router>
-					<Navbar />
+					{
+						localStorage['jwtToken'] 
+							? (<Navbar />) 
+							: ""
+					}
 					<div className="">
 						<Switch>
 							{/* AUTH */}
@@ -72,8 +80,11 @@ function App() {
 							<Redirect to="/login" />
 						</Switch>
 					</div>
-					
-					<FootNavBar />
+					{
+						localStorage['jwtToken'] 
+							? (<FootNavBar />) 
+							: ""
+					}
 				</Router>
 			</Provider>
 		</div>

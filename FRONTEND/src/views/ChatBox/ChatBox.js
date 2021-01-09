@@ -1,10 +1,26 @@
 import React, { Component } from 'react'
 
 import Conversations from "./Conversations/Conversations";
+import Messages from "./Messages/Messages";
+import Details from "./Details/Details";
 
 import "./ChatBox.css";
 
 export default class ChatBox extends Component {
+
+    constructor() {
+        super();
+        this.state = {
+            text: "",
+            details_clicked: false
+        };
+        this.onChange = this.onChange.bind(this);
+    }
+
+    onChange(e) {
+        this.setState({ text: e.target.value });
+    }
+
     render() {
         return (
             <div>
@@ -34,34 +50,52 @@ export default class ChatBox extends Component {
                         </div>
                         <div className="col-md-8 p-0" id="chatbox_col2">
                             <div id="options">
-                                <div id="username">
-                                    <img
-                                        src="https://instagram.fbkk8-3.fna.fbcdn.net/v/t51.2885-19/44884218_345707102882519_2446069589734326272_n.jpg?_nc_ht=instagram.fbkk8-3.fna.fbcdn.net&_nc_ohc=OqojzNR1_M0AX_TLOA8&oh=1d692889fe9d6514afc3d269733727c4&oe=5FFD060F&ig_cache_key=YW5vbnltb3VzX3Byb2ZpbGVfcGlj.2"
-                                        className="rounded-circle mr-3"
-                                        width="30"
-                                        height="30"
-                                    />
-                                    <span className="font-weight-bold">prvn_king</span>
-                                </div>
+                                {!this.state.details_clicked
+                                    ? (<div id="username" className="d-flex align-items-center">
+                                        <img
+                                            src="https://instagram.fbkk8-3.fna.fbcdn.net/v/t51.2885-19/44884218_345707102882519_2446069589734326272_n.jpg?_nc_ht=instagram.fbkk8-3.fna.fbcdn.net&_nc_ohc=OqojzNR1_M0AX_TLOA8&oh=1d692889fe9d6514afc3d269733727c4&oe=5FFD060F&ig_cache_key=YW5vbnltb3VzX3Byb2ZpbGVfcGlj.2"
+                                            className="rounded-circle mr-3"
+                                            width="30"
+                                            height="30"
+                                        />
+                                        <span className="d-flex flex-column">
+                                            <label className="font-weight-bold mb-0">prvn_king</label>
+                                            <label className="text-muted" style={{ fontSize: '11px' }}>Active Now</label>
+                                        </span>
+                                    </div>)
+                                    :
+                                    (<div id="username" className="d-flex align-items-center"></div>)}
 
-                                <span id="details">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-info-circle" viewBox="0 0 16 16">
+                                {this.state.details_clicked && <span className="d-block font-weight-bold text-center">Details</span>}
+
+                                <span id="details" onClick={() => this.setState({ details_clicked: !this.state.details_clicked })}>
+                                    {!this.state.details_clicked && <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-info-circle" viewBox="0 0 16 16">
                                         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
                                         <path d="M8.93 6.588l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
-                                    </svg>
+                                    </svg>}
+
+                                    {this.state.details_clicked && <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-info-circle-fill" viewBox="0 0 16 16">
+                                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412l-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
+                                    </svg>}
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    {/* CONVERSATIONS */}
                     <div className="row bg-white border mx-5" id="chatbox_row2">
+
+                        {/* CONVERSATIONS */}
                         <div className="col-md-4 border-right p-0 h-100" id="chatbox_col1" style={{ overflowY: "scroll" }}>
                             <div id="conversations_block">
                                 <Conversations />
                             </div>
                         </div>
-                        <div className="col-md-8 p-3 h-100" id="chatbox_col2">
+                        {!this.state.details_clicked && <div className="col-md-8 p-3 h-100" id="chatbox_col2">
+
+                            {/* MESSAGES */}
+                            <div id="messages"><Messages /></div>
+
+                            {/* MESSAGE INPUT */}
                             <div id="message_box">
                                 <span>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-sticky" viewBox="0 0 16 16">
@@ -69,22 +103,32 @@ export default class ChatBox extends Component {
                                     </svg>
                                 </span>
 
-                                <textarea className="form-control" placeholder="Message..." />
+                                <textarea
+                                    className="form-control"
+                                    placeholder="Message..."
+                                    onChange={this.onChange}
+                                    value={this.state.text}
+                                />
 
-                                <span>
+                                {!this.state.text && <span>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-image" viewBox="0 0 16 16">
                                         <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
                                         <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z" />
                                     </svg>
-                                </span>
+                                </span>}
 
-                                <span className="ml-3">
+                                {!this.state.text && <span className="ml-3">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-heart" viewBox="0 0 16 16">
                                         <path d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
                                     </svg>
-                                </span>
+                                </span>}
+
+                                {this.state.text && <span className="text-primary">Send</span>}
                             </div>
-                        </div>
+                        </div>}
+
+                        {/* DETAILS */}
+                        {this.state.details_clicked && <div className="col-md-8 h-100 mx-0 px-0" id="chatbox_col2"><Details /></div>}
                     </div>
                 </div>
             </div>

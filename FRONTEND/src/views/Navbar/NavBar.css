@@ -20,6 +20,12 @@
     }
 }
 
+/* @media( max-width: 991px )  {
+    #top-navbar .container { 
+        width: 1300px !important;
+    }
+} */
+
 @media(max-width: 540px) {
     #search {
         display: none;
