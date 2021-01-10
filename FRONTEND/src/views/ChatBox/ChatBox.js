@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import classnames from "classnames";
 
 import Conversations from "./Conversations/Conversations";
 import Messages from "./Messages/Messages";
@@ -16,9 +15,18 @@ class ChatBox extends Component {
             text: "",
             details_clicked: false,
             sticker_clicked: false,
-            show_conversations: false
+            show_conversations: false,
+            current_user: { id: 1, username: "prvn_king", is_active: true, messages: [{ id: 1, text: "Hi Praveen", user_id: "5f6abb9a7625083282a9c4ddd", time: "Sunday 7:02pm", is_time_showing: true }] },
+            conversations: [
+                { id: 1, username: "prvn_king", is_active: true, messages: [{ id: 1, text: "Hi Praveen", user_id: "5f6abb9a7625083282a9c4ddd", time: "Sunday 7:02pm", is_time_showing: true }] },
+                { id: 2, username: "elon_musk", is_active: false, messages: [{ id: 1, text: "Hi Musk", user_id: "5f6abb9a7625083282a9c483", time: "Monday 7:02pm", is_time_showing: true }] },
+                { id: 3, username: "sundar_pichai", is_active: true, messages: [{ id: 1, text: "Hi Sundar", user_id: "5f6abb934324083282a9c4d2", time: "Sunday 7:02pm", is_time_showing: true }] },
+                { id: 4, username: "mark_zuckerberg", is_active: false, messages: [{ id: 1, text: "Hi Zucker", user_id: "5f6abbedfef5083282a9c4d2", time: "Sunday 7:02pm", is_time_showing: true }] },
+                { id: 5, username: "billgates", is_active: true, messages: [{ id: 1, text: "Hi Bill", user_id: "5f6a762434nn82a9c4d2", time: "Sunday 7:02pm", is_time_showing: true }] }
+            ]
         };
         this.onChange = this.onChange.bind(this);
+        this.onSendMessage = this.onSendMessage.bind(this);
     }
 
     componentDidMount() {
@@ -40,10 +48,8 @@ class ChatBox extends Component {
     }
 
     responseWindowResize = () => {
-
         this.showColumn();
         this.controlNavbars();
-
     }
 
     controlNavbars() {
@@ -91,15 +97,36 @@ class ChatBox extends Component {
         this.showColumn();
     }
 
+    getCurrentUserMessages(id) {
+        let user_clicked = this.state.conversations.find(conversation => conversation.id === id);
+        this.setState({ current_user: user_clicked });
+    }
+
     onChange(e) {
         this.setState({ text: e.target.value });
+    }
+
+    onSendMessage() {
+        let current_user = this.state.current_user;
+        current_user['messages'].push({
+            id: 1,
+            text: this.state.text,
+            user_id: "5f6abb9a7625083282a9c4d2",
+            time: "Sunday 7:02pm",
+            is_time_showing: false
+        });
+        this.setState({ current_user: current_user, text: "", sticker_clicked: false });
+    }
+
+    imagePicked = (event, emojiObj) => {
+        event.persist();
+        this.setState({ text:  this.state.text + emojiObj.emoji });
     }
 
     render() {
         return (
             <div>
                 <div id="chatbox" className="mt-5 pt-4 container">
-
                     {/* INBOX HEADERS */}
                     <div className="row bg-white border border-bottom-0 mx-5" id="chatbox_row1">
                         <div className="col-md-4 border-right p-0" id="chatbox_col1">
@@ -140,13 +167,16 @@ class ChatBox extends Component {
                                             className="rounded-circle mr-2"
                                             width="30"
                                             height="30"
+                                            alt=""
                                         />
 
                                         <div id="online_dot"></div>
 
                                         <span className="d-flex flex-column mt-2">
-                                            <label className="font-weight-bold mb-0">prvn_king</label>
-                                            <label className="text-muted" style={{ fontSize: '11px' }}>Active Now</label>
+                                            <label className="font-weight-bold mb-0">{this.state.current_user.username}</label>
+                                            <label className="text-muted" style={{ fontSize: '11px' }}>{
+                                                this.state.current_user.is_active ? "Active Now" : "Active 23h ago"
+                                            }</label>
                                         </span>
                                     </div>)
                                     :
@@ -172,18 +202,23 @@ class ChatBox extends Component {
                         {/* CONVERSATIONS */}
                         <div className="col-md-4 border-right p-0 h-100" id="chatbox_col1" style={{ overflowY: "scroll" }}>
                             <div id="conversations_block">
-                                <Conversations />
+                                <Conversations
+                                    conversations={this.state.conversations}
+                                    getCurrentUser={(id) => this.getCurrentUserMessages(id)}
+                                />
                             </div>
                         </div>
 
                         {!this.state.details_clicked && <div className="col-md-8 p-3 h-100" id="chatbox_col2">
 
                             {/* MESSAGES */}
-                            <div id="messages" onClick={() => this.setState({ sticker_clicked: false })}><Messages /></div>
+                            <div id="messages" onClick={() => this.setState({ sticker_clicked: false })}>
+                                <Messages messages={this.state.current_user.messages} text={this.state.text} />
+                            </div>
 
                             {/* EmojiPicker */}
                             {this.state.sticker_clicked && <div id="emoji_picker">
-                                <EmojiPicker />
+                                <EmojiPicker pickImage={() => this.imagePicked} />
                             </div>}
 
                             {/* MESSAGE INPUT */}
@@ -216,7 +251,7 @@ class ChatBox extends Component {
                                     </svg>
                                 </span>}
 
-                                {this.state.text && <span className="text-primary">Send</span>}
+                                {this.state.text && <span className="text-primary" style={{ cursor: "pointer" }} onClick={this.onSendMessage}>Send</span>}
                             </div>
                         </div>}
 

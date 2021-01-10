@@ -14,6 +14,7 @@ export default class SuggestionBox extends Component {
                             height="50"
                             width="50"
                             className="rounded-circle"
+                            alt=""
                         />
                     </div>
                     <div className="text-center font-weight-bold mt-3">

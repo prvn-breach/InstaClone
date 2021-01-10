@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Picker from 'emoji-picker-react';
 
-const EmojiPicker = () => {
-    const [chosenEmoji, setChosenEmoji] = useState(null);
-
-    const onEmojiClick = (event, emojiObject) => {
-        setChosenEmoji(emojiObject);
-    };
-
+const EmojiPicker = (props) => {
     return (
-        <div>
-            <Picker onEmojiClick={onEmojiClick} disableSearchBar />
-        </div>
+        <Picker
+            onEmojiClick={props.pickImage()}
+            pickerStyle={{ width: '100%' }}
+            disableSearchBar
+            native
+            preload
+        />
     );
 };
 
