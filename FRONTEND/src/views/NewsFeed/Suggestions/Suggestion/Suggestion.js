@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 
 export default class Suggestion extends Component {
     render() {
+        const { username } = this.props;
         return (
             <div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
@@ -12,7 +13,7 @@ export default class Suggestion extends Component {
                             className="rounded-circle border"
                             style={{ width: '39px' }}
                         />
-                        <a href="#" className="nav-link d-inline text-dark">prvn_kumar</a>
+                        <a href="#" className="nav-link d-inline text-dark">{username}</a>
                     </div>
                     <div>
                         <a href="#" className="nav-link d-inline">Follow</a>

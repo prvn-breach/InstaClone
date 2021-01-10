@@ -4,6 +4,7 @@ import "./SuggestionBox.css"
 
 export default class SuggestionBox extends Component {
     render() {
+        const { username } = this.props;
         return (
             <div>
                 <div className="border rounded p-3 mr-2" style={{ height: "185px" }}>
@@ -16,7 +17,7 @@ export default class SuggestionBox extends Component {
                         />
                     </div>
                     <div className="text-center font-weight-bold mt-3">
-                        Praveen
+                        {username}
                                 </div>
                     <div className="pt-4">
                         <button

@@ -105,12 +105,12 @@
 }
 
 @media (max-width: 767px) {
-    #chatbox #chatbox_row1 #chatbox_col1 {
+    /* #chatbox #chatbox_row1 #chatbox_col1 {
         display: none;
     }
     #chatbox #chatbox_row2 #chatbox_col1 {
         display: none;
-    }
+    } */
 }
 
 @media (min-width: 768px) {

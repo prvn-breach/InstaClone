@@ -4,8 +4,9 @@ import "./Story.css";
 
 export default class Story extends Component {
     render() {
+        const { username } = this.props;
         return (
-            <div>
+            <div id="story">
                 <div className="p-2">
                     <button type="button" className="border-0 bg-light">
                         <img
@@ -14,7 +15,7 @@ export default class Story extends Component {
                             width="56"
                             height="56"
                         />
-                        <span className="d-block" style={{ fontSize: '12px' }}>akhil_kumar</span>
+                        <span className="d-block" style={{ fontSize: '12px' }}>{username}</span>
                     </button>
                 </div>
             </div>
