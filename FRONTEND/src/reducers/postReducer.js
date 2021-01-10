@@ -3,8 +3,8 @@ import isEmpty from "../validation/is_empty";
 
 const initialState = {
     loading: true,
-    posts: {},
-    post: null
+    posts: [],
+    post: {}
 }
 
 export default function (state=initialState, action) {
@@ -15,13 +15,16 @@ export default function (state=initialState, action) {
                 loading: isEmpty(action.payload),
                 posts: action.payload
             }
+
         case GET_POST:
             return {
                 ...state,
                 post: action.payload
             }
+
         case CLEAR_POSTS:
             return {}
+            
         default:
             return state
     }

@@ -7,6 +7,7 @@ import "./Posts.css"
 
 export default class Posts extends Component {
     render() {
+        console.log(this.props.posts);
         return (
             <div>
 
