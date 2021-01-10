@@ -1,0 +1,11 @@
+#conversation #online_dot {
+    height: 20px;
+    width: 20px;
+    border-width: 3.5px;
+    margin: 40px 0 0 40px;
+    background: #78de45;
+    border: 3px solid #fff;
+    border-color: rgba(var(--d87,255,255,255),1);
+    border-radius: 50%;
+    position: absolute;
+}

@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 
+import "./Conversation.css"
+
 class Conversation extends Component {
     render() {
         return (
@@ -10,6 +12,7 @@ class Conversation extends Component {
                     width="60"
                     height="60"
                 />
+                {this.props.is_active && <div id="online_dot" />}
                 <span id="conversation_user" className="d-flex flex-column">
                     <label className="font-weight-bold mb-0">{this.props.username}</label>
                     {this.props.is_active && <label className="text-muted" style={{ fontSize: '11px' }}>Active Now</label>}

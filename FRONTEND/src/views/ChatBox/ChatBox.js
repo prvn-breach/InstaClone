@@ -1,20 +1,75 @@
 import React, { Component } from 'react'
+import classnames from "classnames";
 
 import Conversations from "./Conversations/Conversations";
 import Messages from "./Messages/Messages";
 import Details from "./Details/Details";
+import EmojiPicker from "./EmojiPicker/EmojiPicker";
 
 import "./ChatBox.css";
 
-export default class ChatBox extends Component {
+class ChatBox extends Component {
 
     constructor() {
         super();
         this.state = {
             text: "",
-            details_clicked: false
+            details_clicked: false,
+            sticker_clicked: false,
+            show_conversations: true
         };
         this.onChange = this.onChange.bind(this);
+    }
+
+    componentDidMount() {
+        this.showColumn();
+        this.responseWindowResize();
+        window.addEventListener('resize', this.responseWindowResize)
+    }
+
+    componentWillUnmount() {
+        this.displayNavbars();
+        window.removeEventListener("resize", this.responseWindowResize);
+    }
+
+    displayNavbars() {
+        let navbars = document.getElementsByTagName("nav");
+        for (let i = 0; i < navbars.length; i++) {
+            navbars[i].classList.remove("d-none");
+        }
+    }
+
+    responseWindowResize = () => {
+        let navbars = document.getElementsByTagName("nav");
+        if (document.getElementById("chatbox")) {
+            if (window.innerWidth > 569) {
+                this.displayNavbars();
+                return;
+            }
+            for (let i = 0; i < navbars.length; i++) {
+                navbars[i].classList.add("d-none");
+            }
+        }
+    }
+
+    showColumn() {
+        let row1_col1 = document.querySelector("#chatbox_row1 > #chatbox_col1");
+        let row2_col1 = document.querySelector("#chatbox_row2 > #chatbox_col1");
+        let row1_col2 = document.querySelector("#chatbox_row1 > #chatbox_col2");
+        let row2_col2 = document.querySelector("#chatbox_row2 > #chatbox_col2");
+
+        // if (this.state.show_conversations) {
+        //     row1_col1.style.display = "block"
+        //     row2_col1.style.display = "block"
+        //     row1_col2.style.display = "none"
+        //     row2_col2.style.display = "none"
+        // } 
+        // else {
+        //     row1_col1.style.display = "none"
+        //     row2_col1.style.display = "none"
+        //     row1_col2.style.display = "block"
+        //     row2_col2.style.display = "block"
+        // }
     }
 
     onChange(e) {
@@ -48,8 +103,17 @@ export default class ChatBox extends Component {
                                 </span>
                             </div>
                         </div>
+
                         <div className="col-md-8 p-0" id="chatbox_col2">
                             <div id="options">
+
+                                {/* GO BACK ICON */}
+                                <span id="back_to_conversations" onClick={() => this.setState({ show_conversations: false })}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-arrow-left-short" viewBox="0 0 16 16">
+                                        <path fillRule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />
+                                    </svg>
+                                </span>
+
                                 {!this.state.details_clicked
                                     ? (<div id="username" className="d-flex align-items-center">
                                         <img
@@ -58,6 +122,9 @@ export default class ChatBox extends Component {
                                             width="30"
                                             height="30"
                                         />
+
+                                        <div id="online_dot"></div>
+
                                         <span className="d-flex flex-column">
                                             <label className="font-weight-bold mb-0">prvn_king</label>
                                             <label className="text-muted" style={{ fontSize: '11px' }}>Active Now</label>
@@ -82,25 +149,32 @@ export default class ChatBox extends Component {
                         </div>
                     </div>
 
-                    <div className="row bg-white border mx-5" id="chatbox_row2">
-
+                    <div className="row bg-white border border-top-0 mx-5" id="chatbox_row2">
                         {/* CONVERSATIONS */}
                         <div className="col-md-4 border-right p-0 h-100" id="chatbox_col1" style={{ overflowY: "scroll" }}>
                             <div id="conversations_block">
                                 <Conversations />
                             </div>
                         </div>
+
                         {!this.state.details_clicked && <div className="col-md-8 p-3 h-100" id="chatbox_col2">
 
                             {/* MESSAGES */}
-                            <div id="messages"><Messages /></div>
+                            <div id="messages" onClick={() => this.setState({ sticker_clicked: false })}><Messages /></div>
+
+                            {/* EmojiPicker */}
+                            {this.state.sticker_clicked && <div id="emoji_picker">
+                                <EmojiPicker />
+                            </div>}
 
                             {/* MESSAGE INPUT */}
                             <div id="message_box">
-                                <span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-sticky" viewBox="0 0 16 16">
+                                <span onClick={() => this.setState({ sticker_clicked: !this.state.sticker_clicked })}>
+                                    {!this.state.sticker_clicked ? (<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-sticky" viewBox="0 0 16 16">
                                         <path d="M2.5 1A1.5 1.5 0 0 0 1 2.5v11A1.5 1.5 0 0 0 2.5 15h6.086a1.5 1.5 0 0 0 1.06-.44l4.915-4.914A1.5 1.5 0 0 0 15 8.586V2.5A1.5 1.5 0 0 0 13.5 1h-11zM2 2.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 .5.5V8H9.5A1.5 1.5 0 0 0 8 9.5V14H2.5a.5.5 0 0 1-.5-.5v-11zm7 11.293V9.5a.5.5 0 0 1 .5-.5h4.293L9 13.793z" />
-                                    </svg>
+                                    </svg>) : (<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-sticky-fill" viewBox="0 0 16 16">
+                                        <path d="M2.5 1A1.5 1.5 0 0 0 1 2.5v11A1.5 1.5 0 0 0 2.5 15h6.086a1.5 1.5 0 0 0 1.06-.44l4.915-4.914A1.5 1.5 0 0 0 15 8.586V2.5A1.5 1.5 0 0 0 13.5 1h-11zm6 8.5a1 1 0 0 1 1-1h4.396a.25.25 0 0 1 .177.427l-5.146 5.146a.25.25 0 0 1-.427-.177V9.5z" />
+                                    </svg>)}
                                 </span>
 
                                 <textarea
@@ -135,3 +209,5 @@ export default class ChatBox extends Component {
         )
     }
 }
+
+export default ChatBox;
