@@ -7,17 +7,14 @@ import "./Posts.css"
 
 export default class Posts extends Component {
     render() {
-        console.log(this.props.posts);
+        let posts = this.props.posts.map((post, i) => <Post key={i} {...post} />);
         return (
             <div>
-
                 {/* STORIES */}
                 <Stories />
-                
 
                 {/* POSTS */}
-                <Post />
-                <Post />
+                {posts}
             </div>
         )
     }

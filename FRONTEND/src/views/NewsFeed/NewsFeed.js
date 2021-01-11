@@ -18,7 +18,6 @@ class NewsFeed extends Component {
     }
 
     render() {
-        console.log("NEWS FEED COMPONENT RENDERING..");
         return (
             <div className="container mt-3 pt-5" id="news_feed">
                 <div className="row">
