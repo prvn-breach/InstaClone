@@ -1,5 +1,6 @@
 const validation = require('../helpers/validate');
 const isEmpty = require('../validation/is-empty');
+const WSS = require("../websocket");
 
 // Load Models
 const Post = require('../models/Post');

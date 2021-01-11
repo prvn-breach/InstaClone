@@ -12,9 +12,39 @@ import SuggestionBoxes from "./SuggestionBoxes/SuggestionBoxes";
 
 import "./NewsFeed.css";
 
+const WebSocketURL = 'ws://localhost:3030'
+
 class NewsFeed extends Component {
+    ws = new WebSocket(WebSocketURL);
+
     componentDidMount() {
         this.props.getPosts();
+        this.onSocketOpen();
+        this.onSocketClose();
+        this.onSocketEventPost();
+    }
+
+    onSocketOpen() {
+        this.ws.onopen = () => {
+            // on connecting, do nothing but log it to the console
+            console.log('connected');
+        }
+    }
+
+    onSocketEventPost() {
+        this.ws.onmessage = (evt) => {
+            console.log(evt);
+        }
+    }
+
+    onSocketClose() {
+        this.ws.onclose = () => {
+            console.log('disconnected')
+            // automatically try to reconnect on connection loss
+            this.setState({
+                ws: new WebSocket(WebSocketURL),
+            })
+        }
     }
 
     render() {
