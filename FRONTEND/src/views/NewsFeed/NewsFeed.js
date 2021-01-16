@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
+import openSocket from "socket.io-client";
 
 
 import { getPosts } from "../../actions/postActions";
@@ -10,41 +11,66 @@ import Posts from "./Posts/Posts";
 import Suggestions from "./Suggestions/Suggestions";
 import SuggestionBoxes from "./SuggestionBoxes/SuggestionBoxes";
 
+
 import "./NewsFeed.css";
 
-const WebSocketURL = 'ws://localhost:3030'
-
 class NewsFeed extends Component {
-    ws = new WebSocket(WebSocketURL);
+
+    constructor() {
+        super();
+        this.getPosts = openSocket("http://localhost:5000/posts/get");
+        this.createdPost = openSocket("http://localhost:5000/posts/create");
+        this.updatedPost = openSocket("http://localhost:5000/posts/update");
+        this.deletedPost = openSocket("http://localhost:5000/posts/delete");
+        this.likePost = openSocket("http://localhost:5000/posts/like");
+        this.unlikePost = openSocket("http://localhost:5000/posts/unlike");
+        this.commentPost = openSocket("http://localhost:5000/posts/comment");
+    }
+    
 
     componentDidMount() {
         this.props.getPosts();
         this.onSocketOpen();
-        this.onSocketClose();
-        this.onSocketEventPost();
     }
 
     onSocketOpen() {
-        this.ws.onopen = () => {
-            // on connecting, do nothing but log it to the console
-            console.log('connected');
-        }
+        this.getPosts.on("getPosts", data => {
+            console.log(data);
+        });
+
+        this.createdPost.on("createPost", post => {
+            this.props.getPosts();
+        });
+
+        this.updatedPost.on("updatePost", post => {
+            this.props.getPosts();
+        });
+
+        this.deletedPost.on("deletePost", post => {
+            this.props.getPosts();
+        });
+
+        this.likePost.on("likePost", post => {
+            this.props.getPosts();
+        });
+
+        this.unlikePost.on("unlikePost", post => {
+            this.props.getPosts();
+        });
+
+        this.commentPost.on("commentPost", post => {
+            this.props.getPosts();
+        });
     }
 
-    onSocketEventPost() {
-        this.ws.onmessage = (evt) => {
-            console.log(evt);
-        }
-    }
-
-    onSocketClose() {
-        this.ws.onclose = () => {
-            console.log('disconnected')
-            // automatically try to reconnect on connection loss
-            this.setState({
-                ws: new WebSocket(WebSocketURL),
-            })
-        }
+    componentWillUnmount() {
+        this.getPosts.disconnect();
+        this.createdPost.disconnect();
+        this.updatedPost.disconnect();
+        this.deletedPost.disconnect();
+        this.likePost.disconnect();
+        this.unlikePost.disconnect();
+        this.commentPost.disconnect();
     }
 
     render() {

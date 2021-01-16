@@ -53,8 +53,12 @@ require('./passport')(passport);
 // Mention Sever PORT
 const port = process.env.PORT || 5000;
 
-app.listen(port);
+const expressServer = app.listen(port);
 
-// WEBSOCKET SERVER
-require("./websocket");
+// SocketIO
+const socketio = require('socket.io');
 
+// Put Http Server into Socket
+const io = socketio(expressServer);
+
+exports.io = io;

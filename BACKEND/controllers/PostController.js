@@ -1,6 +1,6 @@
 const validation = require('../helpers/validate');
 const isEmpty = require('../validation/is-empty');
-const WSS = require("../websocket");
+const socket = require("../server");
 
 // Load Models
 const Post = require('../models/Post');
@@ -8,7 +8,10 @@ const Post = require('../models/Post');
 const getPosts = (req, res) => {
     Post.find()
         .sort({ date: -1 })
-        .then(posts => res.json(posts))
+        .then(posts => {
+            res.json(posts);
+            socket.io.of("/posts/get").emit('getPosts', posts);
+        })
         .catch(err => res.status(404).json({ nopostsfound: 'No posts found' }));
 }
 
@@ -45,7 +48,10 @@ const createPost = (req, res) => {
     })
 
     newPost.save()
-        .then(post => res.json(post))
+        .then(post => {
+            res.json(post);
+            socket.io.of("/posts/create").emit('createPost', post);
+        })
         .catch(err => res.status(500).json(err));
 }
 
@@ -80,7 +86,10 @@ const updatePost = (req, res) => {
         post.text = text;
 
         post.save()
-            .then(post => res.json(post))
+            .then(post => {
+                res.json(post);
+                socket.io.of("/posts/update").emit('updatePost', post);
+            })
             .catch(err => res.status(500).json(err));
     })
 }
@@ -97,7 +106,10 @@ const deletePost = (req, res) => {
         }
 
         post.remove()
-            .then((post) => res.json({ success: true }))
+            .then((post) => {
+                res.json({ success: true });
+                socket.io.of("/posts/delete").emit('deletePost', post);
+            })
             .catch(err => res.status(500).json(err));
     })
 }
@@ -112,7 +124,10 @@ const likePost = (req, res) => {
         post.likes.unshift({ user: req.user.id });
 
         //save
-        post.save().then(post => res.json(post));
+        post.save().then(post => {
+            res.json(post);
+            socket.io.of("/posts/like").emit('likePost', post);
+        });
     });
 }
 
@@ -135,7 +150,10 @@ const unlikePost = (req, res) => {
         post.likes.splice(removeIndex, 1);
 
         // Save
-        post.save().then(post => res.json(post));
+        post.save().then(post => {
+            res.json(post);
+            socket.io.of("/posts/unlike").emit('unlikePost', post);
+        });
     });
 }
 
@@ -170,8 +188,11 @@ const comment = (req, res) => {
             post.comments.unshift(newComment);
 
             // Save
-            post.save().then(post => res.json(post))
-                    .catch(err => res.status(500).json(err));
+            post.save().then(post => {
+                res.json(post);
+                socket.io.of("/posts/comment").emit('commentPost', post);
+            })
+            .catch(err => res.status(500).json(err));
     })
     .catch(err => res.status(404).json({ nopostfound: 'No Post found for that ID' }));
 }
