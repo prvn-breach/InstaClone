@@ -5,11 +5,13 @@ import PropTypes from "prop-types";
 import openSocket from "socket.io-client";
 
 
-import { getPosts } from "../../actions/postActions";
+import { getPosts, deletePost } from "../../actions/postActions";
 
 import Posts from "./Posts/Posts";
 import Suggestions from "./Suggestions/Suggestions";
 import SuggestionBoxes from "./SuggestionBoxes/SuggestionBoxes";
+
+import Modal from "../Modal/Modal";
 
 
 import "./NewsFeed.css";
@@ -29,6 +31,7 @@ class NewsFeed extends Component {
         this.commentPost = openSocket("http://localhost:5000/posts/comment");
 
         this.postsComponent = React.createRef();
+        this.modal = React.createRef();
     }
 
 
@@ -47,7 +50,10 @@ class NewsFeed extends Component {
 
         this.updatedPost.on("updatePost", post => this.updatePost(post));
 
-        this.deletedPost.on("deletePost", () => this.props.getPosts());
+        this.deletedPost.on("deletePost", () => {
+            this.props.getPosts();
+            this.modal.current.closeModal();
+        });
 
         this.likePost.on("likePost", post => this.updatePost(post));
 
@@ -72,15 +78,23 @@ class NewsFeed extends Component {
         this.commentPost.disconnect();
     }
 
+    postMenuClickedHandler(post) {
+        this.modal.current.showModal(post, this.props.auth.user.id);
+    }
+
+    deletePost(post_id) {
+        this.props.deletePost(post_id);
+    }
+
     render() {
         this.postsProps = this.props.posts;
         return (
-            <div className="container mt-3 pt-5" id="news_feed">
+            <div className="container mt-3 pt-5" id="news_feed">          
                 <div className="row">
 
                     {/* LEFT SIDE POSTS */}
                     <div className="col-lg-7 p-0" id="posts_column">
-                        <Posts posts={this.postsProps.posts} ref={this.postsComponent} />
+                        <Posts posts={this.postsProps.posts} postMenuClickedHandler={(post) => this.postMenuClickedHandler(post)} ref={this.postsComponent} />
                     </div>
 
                     {/* RIGHT SIDE SUGGESTIONS */}
@@ -93,6 +107,10 @@ class NewsFeed extends Component {
                 <div id="suggestion_row" className="row bg-white mb-5 py-4 border">
                     <SuggestionBoxes />
                 </div>
+
+
+                {/* MODAL */}
+                <Modal ref={this.modal} deletePostHandler={(post_id) => this.deletePost(post_id)} />
             </div>
         )
     }
@@ -100,11 +118,13 @@ class NewsFeed extends Component {
 
 NewsFeed.propTypes = {
     posts: PropTypes.object.isRequired,
+    auth: PropTypes.object.isRequired,
     getPosts: PropTypes.func.isRequired
 }
 
 const mapStateToProps = state => ({
-    posts: state.posts
+    posts: state.posts,
+    auth: state.auth
 });
 
-export default connect(mapStateToProps, { getPosts })(withRouter(NewsFeed));
+export default connect(mapStateToProps, { getPosts, deletePost })(withRouter(NewsFeed));

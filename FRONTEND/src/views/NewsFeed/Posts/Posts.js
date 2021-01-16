@@ -12,9 +12,13 @@ export default class Posts extends Component {
         this.posts = [];
     }
 
+    postMenuClick(post) {
+        this.props.postMenuClickedHandler(post);
+    }
+
     render() {
         this.posts = this.props.posts;
-        let posts = this.posts.map((post, i) => <Post key={i} {...post} />);
+        let posts = this.posts.map((post, i) => <Post key={i} onPostMenuClicked={() => this.postMenuClick(post)} {...post} />);
         return (
             <div>
                 {/* STORIES */}

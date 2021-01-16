@@ -15,7 +15,7 @@ import "./Post.css";
 
 export default class Post extends Component {
     render() {
-        const { text, name, image, user, likes, comments, date } = this.props;
+        const { id, text, name, image, user, likes, comments, date } = this.props;
         const imageLink = setFileUrl(image);
 
         let size = 4;
@@ -34,7 +34,7 @@ export default class Post extends Component {
                         />
                         <a href="#" className="ml-3 text-dark">{name}</a>
 
-                        <IconButton color="default" component="span" className="float-right p-0">
+                        <IconButton onClick={() => this.props.onPostMenuClicked()} color="default" component="span" className="float-right p-0">
                             <MoreVertIcon />
                         </IconButton>
                     </div>
