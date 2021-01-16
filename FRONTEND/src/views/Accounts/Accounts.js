@@ -16,7 +16,8 @@ class Accounts extends Component {
             params: {
                 "edit": 0,
                 "change_pwd": 1,
-                "activity": 2
+                "notifications": 2,
+                "activity": 3
             }
         }
         this.state.value = this.state.params[props.match.params.tab];
@@ -59,7 +60,8 @@ class Accounts extends Component {
                     >
                         <Tab label="Edit Profile" {...this.a11yProps(0)} />
                         <Tab label="Change Password" {...this.a11yProps(1)} />
-                        <Tab label="Login Activity" {...this.a11yProps(2)} />
+                        <Tab label="Notifications" {...this.a11yProps(2)} />
+                        <Tab label="Login Activity" {...this.a11yProps(3)} />
                     </Tabs>
                     <TabPanel value={this.state.value} index={0}>
                         <EditPage />
@@ -68,7 +70,10 @@ class Accounts extends Component {
                         <ChangePwd />
                     </TabPanel>
                     <TabPanel value={this.state.value} index={2}>
-                        Tab Panel 3
+                        Notifications
+                    </TabPanel>
+                    <TabPanel value={this.state.value} index={3}>
+                        Activity
                     </TabPanel>
                 </div>
             </div>
