@@ -18,6 +18,8 @@ class NewsFeed extends Component {
 
     constructor() {
         super();
+        this.postsProps = null;
+
         this.getPosts = openSocket("http://localhost:5000/posts/get");
         this.createdPost = openSocket("http://localhost:5000/posts/create");
         this.updatedPost = openSocket("http://localhost:5000/posts/update");
@@ -25,8 +27,10 @@ class NewsFeed extends Component {
         this.likePost = openSocket("http://localhost:5000/posts/like");
         this.unlikePost = openSocket("http://localhost:5000/posts/unlike");
         this.commentPost = openSocket("http://localhost:5000/posts/comment");
+
+        this.postsComponent = React.createRef();
     }
-    
+
 
     componentDidMount() {
         this.props.getPosts();
@@ -34,33 +38,28 @@ class NewsFeed extends Component {
     }
 
     onSocketOpen() {
-        this.getPosts.on("getPosts", data => {
-            console.log(data);
-        });
+        this.getPosts.on("getPosts", () => this.postsComponent.current.forceUpdate());
 
         this.createdPost.on("createPost", post => {
-            this.props.getPosts();
+            this.postsProps.posts.unshift(post);
+            this.postsComponent.current.forceUpdate();
         });
 
-        this.updatedPost.on("updatePost", post => {
-            this.props.getPosts();
-        });
+        this.updatedPost.on("updatePost", post => this.updatePost(post));
 
-        this.deletedPost.on("deletePost", post => {
-            this.props.getPosts();
-        });
+        this.deletedPost.on("deletePost", () => this.props.getPosts());
 
-        this.likePost.on("likePost", post => {
-            this.props.getPosts();
-        });
+        this.likePost.on("likePost", post => this.updatePost(post));
 
-        this.unlikePost.on("unlikePost", post => {
-            this.props.getPosts();
-        });
+        this.unlikePost.on("unlikePost", post => this.updatePost(post));
 
-        this.commentPost.on("commentPost", post => {
-            this.props.getPosts();
-        });
+        this.commentPost.on("commentPost", post => this.updatePost(post));
+    }
+
+    updatePost(updatedPost) {
+        const index = this.postsProps.posts.findIndex(post => post.id == updatedPost.id);
+        this.postsProps.posts[index] = updatedPost;
+        this.postsComponent.current.forceUpdate();
     }
 
     componentWillUnmount() {
@@ -74,13 +73,14 @@ class NewsFeed extends Component {
     }
 
     render() {
+        this.postsProps = this.props.posts;
         return (
             <div className="container mt-3 pt-5" id="news_feed">
                 <div className="row">
 
                     {/* LEFT SIDE POSTS */}
                     <div className="col-lg-7 p-0" id="posts_column">
-                        <Posts {...this.props.posts} />
+                        <Posts posts={this.postsProps.posts} ref={this.postsComponent} />
                     </div>
 
                     {/* RIGHT SIDE SUGGESTIONS */}
