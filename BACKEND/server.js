@@ -59,6 +59,8 @@ const expressServer = app.listen(port);
 const socketio = require('socket.io');
 
 // Put Http Server into Socket
-const io = socketio(expressServer);
+const io = socketio(expressServer, {cors: {
+    origin: '*',
+  }});
 
 exports.io = io;

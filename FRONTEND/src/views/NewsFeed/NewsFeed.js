@@ -44,8 +44,18 @@ class NewsFeed extends Component {
         this.getPosts.on("getPosts", () => this.postsComponent.current.forceUpdate());
 
         this.createdPost.on("createPost", post => {
-            this.postsProps.posts.unshift(post);
-            this.postsComponent.current.forceUpdate();
+            let auth_user = this.props.auth.user;
+            console.log("This Post Belongs To Current User: "+ (post['user'] === auth_user['id']));
+            console.log("This Post Belongs To Current User Followers: "+auth_user['followers'].includes(post['user']));
+            console.log("This Post Belongs To Current User Follwing: "+auth_user['following'].includes(post['user']));
+            if (
+                post['user'] === auth_user['id'] ||
+                auth_user['followers'].includes(post['user']) ||
+                auth_user['following'].includes(post['user'])
+            ) {
+                this.postsProps.posts.unshift(post);
+                this.postsComponent.current.forceUpdate();
+            }
         });
 
         this.updatedPost.on("updatePost", post => this.updatePost(post));
@@ -89,7 +99,7 @@ class NewsFeed extends Component {
     render() {
         this.postsProps = this.props.posts;
         return (
-            <div className="container mt-3 pt-5" id="news_feed">          
+            <div className="container mt-3 pt-5" id="news_feed">
                 <div className="row">
 
                     {/* LEFT SIDE POSTS */}

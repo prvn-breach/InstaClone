@@ -5,7 +5,7 @@ import jwt_decode from "jwt-decode";
 
 import store from "./store";
 import setAuthToken from "./utils/setAuthToken";
-import { setCurrentUser, logoutUser } from "./actions/authActions";
+import { setCurrentUser, updateSetCurrentUser, logoutUser } from "./actions/authActions";
 
 // Styles
 import './App.css';
@@ -25,6 +25,7 @@ import Profile from "./views/components/profile/Profile";
 import NewProfile from "./views/Profile/Profile";
 import Accounts from "./views/Accounts/Accounts";
 import ChatBox from "./views/ChatBox/ChatBox";
+import openSocket from "socket.io-client";
 
 // Check auth token
 if (localStorage['jwtToken']) {
@@ -32,14 +33,28 @@ if (localStorage['jwtToken']) {
 	setAuthToken(localStorage['jwtToken']);
 	// Decode token and get user token
 	const decoded = jwt_decode(localStorage['jwtToken']);
-	// Set Current User
-	store.dispatch(setCurrentUser(decoded));
+	
+	// SET CURRENT USER
+	store.dispatch(updateSetCurrentUser());
+
+	// Get Auth User Event
+	let getAuthUser = openSocket("http://localhost:5000/user/getAuthUsers");
+	getAuthUser.on('getAuthUsers', (data) => {
+		if (decoded['id'] == data['current_user']._id) {
+			store.dispatch(setCurrentUser(data['current_user']));
+		} else if (decoded['id'] == data['followed_user']._id) {
+			store.dispatch(setCurrentUser(data['followed_user']));
+		}
+	});
 
 	// Check for expired token
 	const currentTime = Date.now() / 1000;
 	if (decoded.exp < currentTime) {
 		// Logout user
 		store.dispatch(logoutUser());
+
+		// Disconnect GetAuthUser Socket
+		getAuthUser.disconnect();
 
 		// Redirect to login
 		window.location.replace("/login");
@@ -56,8 +71,8 @@ const App = () => {
 			<Provider store={store}>
 				<Router>
 					{
-						localStorage['jwtToken'] 
-							? (<Navbar />) 
+						localStorage['jwtToken']
+							? (<Navbar />)
 							: ""
 					}
 					<div className="">
@@ -81,8 +96,8 @@ const App = () => {
 						</Switch>
 					</div>
 					{
-						localStorage['jwtToken'] 
-							? (<FootNavBar />) 
+						localStorage['jwtToken']
+							? (<FootNavBar />)
 							: ""
 					}
 				</Router>

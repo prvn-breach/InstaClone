@@ -1,5 +1,6 @@
 const validation = require('../helpers/validate');
 const isEmpty = require('../validation/is-empty');
+const socket = require("../server");
 
 // Load Models
 const User = require('../models/User');
@@ -10,10 +11,10 @@ const getUsersByIds = async (user_ids, fields = null) => {
     try {
         users = await User.find({ '_id': { $in: user_ids } });
     } catch (error) {
-        return res.status(500).json({ success: false, message: "[getUsersByIds Func] Something Went Wrong!" });
+        return { success: false, message: "[getUsersByIds Func] Something Went Wrong!" };
     }
 
-    return users;
+    return { success: true, data: users };
 }
 
 const getAllUsers = async (req, res) => {
@@ -38,7 +39,10 @@ const getUsers = async (req, res) => {
 
     let connected_user_ids = current_user['followers'].concat(current_user['following']);
     let connected_users = await getUsersByIds(connected_user_ids);
-
+    if (!connected_users['success']) {
+        res.status(500).json(connected_users);
+    }
+    connected_users = connected_users['data'];
 
     let suggestions = [];
 
@@ -62,19 +66,45 @@ const getUsers = async (req, res) => {
 }
 
 const getUserById = async (req, res) => {
-    let user;
-    try {
-        user = await User.findById(req.params.id);
-    } catch (err) {
-        return res.status(500).json({
-            success: false,
-            message: "Something went wrong !"
-        })
+    let user = await getAuthUser(req.params.id);
+    if (!user['success']) {
+        return res.json(user);
     }
 
     res.status(201).json({
         success: true,
-        user: user
+        user: user['data']
+    })
+}
+
+const getAuthUser = async (user_id) => {
+    let user;
+    try {
+        user = await User.findById(user_id);
+    } catch (err) {
+        return {
+            success: false,
+            message: "[getAuthUser Func] Something went wrong!"
+        };
+    }
+
+    return {
+        success: true,
+        data: user
+    };
+}
+
+const getCurrentUser = async (req, res) => {
+
+    let user = await getAuthUser(req.user._id);
+    if (!user['success']) {
+        return res.json(user);
+    }
+    // socket.io.of("/user/getAuthUsers").emit('getAuthUsers', user['data']);
+
+    res.status(201).json({
+        success: true,
+        user: user['data']
     })
 }
 
@@ -110,12 +140,17 @@ const followUser = async (req, res) => {
     followed_user['followers'].push(req.user._id);
     current_user['following'].push(req.body.user_id);
 
+    let updated_current_user;
+    let updated_followed_user;
     try {
-        await followed_user.save();
-        await current_user.save();
+        updated_followed_user = await followed_user.save();
+        updated_current_user = await current_user.save();
     } catch (e) {
         return res.status(500).json(e);
     }
+
+    socket.io.of("/user/follow").emit('followUser', updated_followed_user);
+    socket.io.of("/user/getAuthUsers").emit('getAuthUsers', { current_user: updated_current_user, followed_user: updated_followed_user});
 
     res.status(200).json({
         message: "Followed Succefully"
@@ -154,13 +189,17 @@ const unFollowUser = async (req, res) => {
     unfollowed_user['followers'].splice(unfollowed_user['followers'].indexOf(req.user._id), 1);
     current_user['following'].splice(unfollowed_user['followers'].indexOf(req.body.user_id), 1);
 
-
+    let updated_current_user;
+    let updated_unfollowed_user;
     try {
-        await unfollowed_user.save();
-        await current_user.save();
+        updated_unfollowed_user = await unfollowed_user.save();
+        updated_current_user = await current_user.save();
     } catch (e) {
         return res.status(500).json(e);
     }
+
+    socket.io.of("/user/unfollow").emit('unfollowUser', updated_unfollowed_user);
+    socket.io.of("/user/getAuthUsers").emit('getAuthUsers', { current_user: updated_current_user, followed_user: updated_unfollowed_user});
 
     res.status(200).json({
         message: "Unfollowed Succefully"
@@ -178,8 +217,11 @@ const getFollowers = async (req, res) => {
 
 
     let followers = await getUsersByIds(current_user['followers']);
+    if (!followers['success']) {
+        res.status(500).json(followers);
+    }
 
-    return res.status(200).json({ success: true, data: followers });
+    return res.status(200).json({ success: true, data: followers['data'] });
 }
 
 const getFollowing = async (req, res) => {
@@ -193,12 +235,16 @@ const getFollowing = async (req, res) => {
 
 
     let following = await getUsersByIds(current_user['following']);
+    if (!following['success']) {
+        res.status(500).json(following);
+    }
 
-    return res.status(200).json({ success: true, data: following });
+    return res.status(200).json({ success: true, data: following['data'] });
 }
 
 exports.getUsers = getUsers;
 exports.getAllUsers = getAllUsers;
+exports.getCurrentUser = getCurrentUser;
 exports.getUserById = getUserById;
 exports.followUser = followUser;
 exports.unFollowUser = unFollowUser;

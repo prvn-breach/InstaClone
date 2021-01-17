@@ -101,6 +101,7 @@ const login = (req, res) => {
                             jwt.sign(payload, secret_key, { expiresIn: 3600 }, (err, token)  => {
                                 return res.json({
                                     success: true,
+                                    user: user,
                                     token: 'Bearer ' + token
                                 })
                             })

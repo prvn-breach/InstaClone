@@ -22,6 +22,15 @@ const getPosts = async (req, res) => {
 
     let users = await getFollowersByUserId(req.user._id);
 
+    let current_user_posts;
+    try {
+        current_user_posts = await Post.find({ 'user': req.user._id });
+    } catch (error) {
+        return res.status(500).json({ success: false, error: "[getPosts Func] Something Went Wrong by Getting Current User Posts!" });
+    }
+
+    
+
     let posts;
     try {
         posts = await Post.find({ 'user': { $in: users } }).sort({ date: -1 });
@@ -30,7 +39,9 @@ const getPosts = async (req, res) => {
         return res.status(500).json({ success: false, error: "Something Went Wrong For Getting Posts!" });
     }
 
-    return res.json(posts);
+    let all_posts = current_user_posts.concat(posts);
+
+    return res.json(all_posts);
 }
 
 const getPostById = (req, res) => {
