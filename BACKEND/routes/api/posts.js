@@ -6,11 +6,9 @@ const upload = require('../../middleware/file-upload');
 // Load Controllers
 const PostController = require('../../controllers/PostController');
 
-// Public Routes
-router.get('/posts', PostController.getPosts);
-router.get('/posts/:id', PostController.getPostById);
+router.get('/posts', passport.authenticate('jwt', { session: false }), PostController.getPosts);
+router.get('/posts/:id', passport.authenticate('jwt', { session: false }), PostController.getPostById);
 
-// Private Routes
 router.post('/posts', upload.single('image'), passport.authenticate('jwt', { session: false }), PostController.createPost);
 router.patch('/posts/:id', passport.authenticate('jwt', { session: false }), PostController.updatePost);
 router.delete('/posts/:id', passport.authenticate('jwt', { session: false }), PostController.deletePost);

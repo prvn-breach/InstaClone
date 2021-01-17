@@ -4,15 +4,33 @@ const socket = require("../server");
 
 // Load Models
 const Post = require('../models/Post');
+const User = require('../models/User');
 
-const getPosts = (req, res) => {
-    Post.find()
-        .sort({ date: -1 })
-        .then(posts => {
-            res.json(posts);
-            socket.io.of("/posts/get").emit('getPosts', posts);
-        })
-        .catch(err => res.status(404).json({ nopostsfound: 'No posts found' }));
+const getFollowersByUserId = async (user_id) => {
+    let current_user;
+    try {
+        current_user = await User.findById(user_id, { followers: 1, following: 1 });
+    } catch (error) {
+        return res.status(500).json({ success: false, error: "User Not Found" });
+    }
+
+    let users = current_user['followers'].concat(current_user['following']);
+    return users;
+}
+
+const getPosts = async (req, res) => {
+
+    let users = await getFollowersByUserId(req.user._id);
+
+    let posts;
+    try {
+        posts = await Post.find({ 'user': { $in: users } }).sort({ date: -1 });
+        socket.io.of("/posts/get").emit('getPosts', posts);
+    } catch (error) {
+        return res.status(500).json({ success: false, error: "Something Went Wrong For Getting Posts!" });
+    }
+
+    return res.json(posts);
 }
 
 const getPostById = (req, res) => {
@@ -25,10 +43,10 @@ const createPost = (req, res) => {
     const validationRules = {
         'text': 'required|string'
     }
-    
+
     let errors = {};
     validation(req.body, validationRules, {}, (err, status) => {
-        if(!status) {
+        if (!status) {
             for (const [key, value] of Object.entries(err.errors)) {
                 errors[key] = value[0]
             }
@@ -60,10 +78,10 @@ const updatePost = (req, res) => {
     const validationRules = {
         'text': 'required|string'
     }
-    
+
     let errors = {};
     validation(req.body, validationRules, {}, (err, status) => {
-        if(!status) {
+        if (!status) {
             for (const [key, value] of Object.entries(err.errors)) {
                 errors[key] = value[0]
             }
@@ -75,12 +93,12 @@ const updatePost = (req, res) => {
 
     Post.findById(req.params.id).then((post) => {
 
-        if(isEmpty(post)) {
+        if (isEmpty(post)) {
             return res.status(404).json({ postnotfound: 'No post found' });
         }
 
-        if(post.user.toString()!== req.user.id) {
-            return res.status(404).json({ notauthorized: 'User not authorized'});
+        if (post.user.toString() !== req.user.id) {
+            return res.status(404).json({ notauthorized: 'User not authorized' });
         }
 
         post.text = text;
@@ -97,12 +115,12 @@ const updatePost = (req, res) => {
 const deletePost = (req, res) => {
     Post.findById(req.params.id).then((post) => {
 
-        if(isEmpty(post)) {
+        if (isEmpty(post)) {
             return res.status(404).json({ postnotfound: 'No post found' });
         }
 
-        if(post.user.toString()!== req.user.id) {
-            return res.status(404).json({ notauthorized: 'User not authorized'});
+        if (post.user.toString() !== req.user.id) {
+            return res.status(404).json({ notauthorized: 'User not authorized' });
         }
 
         post.remove()
@@ -116,7 +134,7 @@ const deletePost = (req, res) => {
 
 const likePost = (req, res) => {
     Post.findById(req.params.id).then(post => {
-        if(post.likes.filter(like => like.user.toString() == req.user.id).length > 0) {
+        if (post.likes.filter(like => like.user.toString() == req.user.id).length > 0) {
             return res.status(400).json({ alreadyliked: 'User already likes this post' });
         }
 
@@ -133,8 +151,8 @@ const likePost = (req, res) => {
 
 const unlikePost = (req, res) => {
     Post.findById(req.params.id).then(post => {
-        if(post.likes.filter(
-            like => like.user.toString() == req.user.id 
+        if (post.likes.filter(
+            like => like.user.toString() == req.user.id
         ).length === 0) {
             return res
                 .status(400)
@@ -143,7 +161,7 @@ const unlikePost = (req, res) => {
 
         // Remove Index
         const removeIndex = post.likes
-            .map(item => item.user.toString())                        
+            .map(item => item.user.toString())
             .indexOf(req.user.id);
 
         // Splice out of array
@@ -162,10 +180,10 @@ const comment = (req, res) => {
     const validationRules = {
         'text': 'required|string'
     }
-    
+
     let errors = {};
     validation(req.body, validationRules, {}, (err, status) => {
-        if(!status) {
+        if (!status) {
             for (const [key, value] of Object.entries(err.errors)) {
                 errors[key] = value[0]
             }
@@ -192,9 +210,9 @@ const comment = (req, res) => {
                 res.json(post);
                 socket.io.of("/posts/comment").emit('commentPost', post);
             })
-            .catch(err => res.status(500).json(err));
-    })
-    .catch(err => res.status(404).json({ nopostfound: 'No Post found for that ID' }));
+                .catch(err => res.status(500).json(err));
+        })
+        .catch(err => res.status(404).json({ nopostfound: 'No Post found for that ID' }));
 }
 
 exports.getPosts = getPosts;
