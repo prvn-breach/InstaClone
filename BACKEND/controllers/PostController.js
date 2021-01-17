@@ -24,7 +24,7 @@ const getPosts = async (req, res) => {
 
     let current_user_posts;
     try {
-        current_user_posts = await Post.find({ 'user': req.user._id });
+        current_user_posts = await Post.find({ 'user': req.user._id }).sort({ date: -1 });
     } catch (error) {
         return res.status(500).json({ success: false, error: "[getPosts Func] Something Went Wrong by Getting Current User Posts!" });
     }

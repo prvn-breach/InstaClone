@@ -45,11 +45,11 @@ class NewsFeed extends Component {
 
         this.createdPost.on("createPost", post => {
             let auth_user = this.props.auth.user;
-            console.log("This Post Belongs To Current User: "+ (post['user'] === auth_user['id']));
+            console.log("This Post Belongs To Current User: "+ (post['user'] === auth_user['_id']));
             console.log("This Post Belongs To Current User Followers: "+auth_user['followers'].includes(post['user']));
             console.log("This Post Belongs To Current User Follwing: "+auth_user['following'].includes(post['user']));
             if (
-                post['user'] === auth_user['id'] ||
+                post['user'] === auth_user['_id'] ||
                 auth_user['followers'].includes(post['user']) ||
                 auth_user['following'].includes(post['user'])
             ) {
