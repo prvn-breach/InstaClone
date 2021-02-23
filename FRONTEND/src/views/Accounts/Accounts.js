@@ -35,9 +35,7 @@ class Accounts extends Component {
 
     handleChange(event, newValue) {
         let keys = Object.keys(this.state.params);
-        let tab_name = keys.find(key => {
-            if (this.state.params[key] == newValue) return key;
-        });
+        let tab_name = keys.find(key => this.state.params[key] === newValue);
 
         // Update TabName in URL
         this.props.history.push("/accounts/" + tab_name);

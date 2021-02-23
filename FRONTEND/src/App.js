@@ -40,9 +40,9 @@ if (localStorage['jwtToken']) {
 	// Get Auth User Event
 	let getAuthUser = openSocket("http://localhost:5000/user/getAuthUsers");
 	getAuthUser.on('getAuthUsers', (data) => {
-		if (decoded['id'] == data['current_user']._id) {
+		if (decoded['id'] === data['current_user']._id) {
 			store.dispatch(setCurrentUser(data['current_user']));
-		} else if (decoded['id'] == data['followed_user']._id) {
+		} else if (decoded['id'] === data['followed_user']._id) {
 			store.dispatch(setCurrentUser(data['followed_user']));
 		}
 	});

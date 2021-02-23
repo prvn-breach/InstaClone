@@ -33,6 +33,7 @@ class Message extends Component {
                             className="rounded-circle float-left mt-4"
                             width="30"
                             height="30"
+                            alt=""
                         />
                     )
                 }

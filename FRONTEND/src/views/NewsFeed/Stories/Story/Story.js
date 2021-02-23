@@ -14,6 +14,7 @@ export default class Story extends Component {
                             className="rounded-circle mb-2"
                             width="56"
                             height="56"
+                            alt=""
                         />
                         <span className="d-block" style={{ fontSize: '12px' }}>{username}</span>
                     </button>

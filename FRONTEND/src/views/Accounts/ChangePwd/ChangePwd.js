@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Link } from "react-router-dom";
 
 import ImageUpload from "../../../hooks/ImageUpload";
 
@@ -46,7 +47,7 @@ export default class ChangePwd extends Component {
 
                     <div className="form-group row">
                         <div className="col-sm-9 offset-sm-3">
-                            <a href="#" className="nav-link m-0 p-0 font-weight-bold">Forgot Password?</a>
+                            <Link  className="nav-link m-0 p-0 font-weight-bold">Forgot Password?</Link>
                         </div>
                     </div>
                 </form>

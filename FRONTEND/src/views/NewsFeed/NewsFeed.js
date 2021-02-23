@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import openSocket from "socket.io-client";
 
 
-import { getPosts, deletePost } from "../../actions/postActions";
+import { getPosts, deletePost, likePost, unLikePost } from "../../actions/postActions";
 
 import Posts from "./Posts/Posts";
 import Suggestions from "./Suggestions/Suggestions";
@@ -73,7 +73,7 @@ class NewsFeed extends Component {
     }
 
     updatePost(updatedPost) {
-        const index = this.postsProps.posts.findIndex(post => post.id == updatedPost.id);
+        const index = this.postsProps.posts.findIndex(post => post.id === updatedPost.id);
         this.postsProps.posts[index] = updatedPost;
         this.postsComponent.current.forceUpdate();
     }
@@ -96,6 +96,14 @@ class NewsFeed extends Component {
         this.props.deletePost(post_id);
     }
 
+    likeThePost(post_id) {
+        this.props.likePost(post_id);
+    }
+
+    unLikeThePost(post_id) {
+        this.props.unLikePost(post_id);
+    }
+
     render() {
         this.postsProps = this.props.posts;
         return (
@@ -104,7 +112,14 @@ class NewsFeed extends Component {
 
                     {/* LEFT SIDE POSTS */}
                     <div className="col-lg-7 p-0" id="posts_column">
-                        <Posts posts={this.postsProps.posts} postMenuClickedHandler={(post) => this.postMenuClickedHandler(post)} ref={this.postsComponent} />
+                        <Posts 
+                            current_user={this.props.auth.user}
+                            posts={this.postsProps.posts} 
+                            postMenuClickedHandler={(post) => this.postMenuClickedHandler(post)} 
+                            likePostHandler={(post_id) => this.likeThePost(post_id)}
+                            unLikePostHandler={(post_id) => this.unLikeThePost(post_id)}
+                            ref={this.postsComponent} 
+                        />
                     </div>
 
                     {/* RIGHT SIDE SUGGESTIONS */}
@@ -129,7 +144,10 @@ class NewsFeed extends Component {
 NewsFeed.propTypes = {
     posts: PropTypes.object.isRequired,
     auth: PropTypes.object.isRequired,
-    getPosts: PropTypes.func.isRequired
+    getPosts: PropTypes.func.isRequired,
+    deletePost: PropTypes.func.isRequired,
+    likePost: PropTypes.func.isRequired,
+    unLikePost: PropTypes.func.isRequired
 }
 
 const mapStateToProps = state => ({
@@ -137,4 +155,4 @@ const mapStateToProps = state => ({
     auth: state.auth
 });
 
-export default connect(mapStateToProps, { getPosts, deletePost })(withRouter(NewsFeed));
+export default connect(mapStateToProps, { getPosts, deletePost, likePost, unLikePost })(withRouter(NewsFeed));

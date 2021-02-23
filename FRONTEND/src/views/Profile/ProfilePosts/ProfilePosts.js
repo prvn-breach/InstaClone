@@ -8,6 +8,7 @@ export default class ProfilePosts extends Component {
                     <img
                         src="https://www.instagram.com/static/images/mediaUpsell.jpg/6efc710a1d5a.jpg"
                         className="p-0 m-0 w-100 h-100"
+                        alt=""
                     />
                 </div>
                 <div className="col-sm-7 p-5 m-0 my-auto" id="profile_posts_col_2">

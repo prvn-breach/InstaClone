@@ -1,4 +1,3 @@
-import { AccordionActions } from "@material-ui/core";
 import { GET_USERS } from "../actions/types";
 
 const initialState = {

@@ -11,6 +11,7 @@ class Conversation extends Component {
                     className="rounded-circle mr-3"
                     width="60"
                     height="60"
+                    alt=""
                 />
                 {this.props.is_active && <div id="online_dot" />}
                 <span id="conversation_user" className="d-flex flex-column">

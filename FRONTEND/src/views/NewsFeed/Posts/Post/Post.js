@@ -6,7 +6,7 @@ import Comment from "./Comment/Comment";
 import IconButton from '@material-ui/core/IconButton';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
-// import FavoriteIcon from '@material-ui/icons/Favorite';
+import FavoriteIcon from '@material-ui/icons/Favorite';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 import SendIcon from '@material-ui/icons/Send';
 import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
@@ -15,7 +15,7 @@ import "./Post.css";
 
 export default class Post extends Component {
     render() {
-        const { id, text, name, image, user, likes, comments, date } = this.props;
+        const { _id, name, image, is_post_liked_by_current_user, likes, comments } = this.props;
         const imageLink = setFileUrl(image);
 
         let size = 4;
@@ -50,9 +50,15 @@ export default class Post extends Component {
 
                         {/* ICONS */}
                         <div className="d-flex p-3" id="postIcons">
-                            <IconButton color="default" component="span" className="p-0">
-                                <FavoriteBorderIcon />
-                            </IconButton>
+                            {is_post_liked_by_current_user ? (
+                                <IconButton style={{color: "red"}} component="span" className="p-0" onClick={() => this.props.onUnLikePostClicked(_id)}>
+                                    <FavoriteIcon />
+                                </IconButton>
+                            ) : (
+                                <IconButton color="default" component="span" className="p-0" onClick={() => this.props.onLikePostClicked(_id)}>
+                                    <FavoriteBorderIcon />
+                                </IconButton>
+                            )}
 
                             <IconButton color="default" component="span" className="p-0">
                                 <ChatBubbleOutlineIcon />

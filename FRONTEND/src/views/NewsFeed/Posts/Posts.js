@@ -16,9 +16,32 @@ export default class Posts extends Component {
         this.props.postMenuClickedHandler(post);
     }
 
+    likePostClicked(post_id) {
+        this.props.likePostHandler(post_id);
+    }
+
+    unLikePostClicked(post_id) {
+        this.props.unLikePostHandler(post_id);
+    }
+
     render() {
         this.posts = this.props.posts;
-        let posts = this.posts.map((post, i) => <Post key={i} onPostMenuClicked={() => this.postMenuClick(post)} {...post} />);
+
+        // add is_post_liked_by_current_user in post array
+        if (this.posts.length > 0) {
+            this.posts.forEach(post => {
+                post['is_post_liked_by_current_user'] = post['likes'].find(like => ("user" in like) && like.user === this.props.current_user._id) ? true : false;
+            });
+        }
+
+        // Append data to Post Component
+        let posts = this.posts.map((post, i) => <Post 
+            key={i} 
+            onPostMenuClicked={() => this.postMenuClick(post)} 
+            onLikePostClicked={(post_id) => this.likePostClicked(post_id)}
+            onUnLikePostClicked={(post_id) => this.unLikePostClicked(post_id)}
+            {...post} 
+        />);
         return (
             <div>
                 {/* STORIES */}
