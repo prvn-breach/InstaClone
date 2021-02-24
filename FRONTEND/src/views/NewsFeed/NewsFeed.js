@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import openSocket from "socket.io-client";
 
 
-import { getPosts, deletePost, likePost, unLikePost } from "../../actions/postActions";
+import { getPosts, deletePost, likePost, unLikePost, createComment } from "../../actions/postActions";
 
 import Posts from "./Posts/Posts";
 import Suggestions from "./Suggestions/Suggestions";
@@ -104,6 +104,10 @@ class NewsFeed extends Component {
         this.props.unLikePost(post_id);
     }
 
+    commentThePost(post_id, comment) {
+        this.props.createComment(comment, post_id);
+    }
+
     render() {
         this.postsProps = this.props.posts;
         return (
@@ -116,8 +120,10 @@ class NewsFeed extends Component {
                             current_user={this.props.auth.user}
                             posts={this.postsProps.posts} 
                             postMenuClickedHandler={(post) => this.postMenuClickedHandler(post)} 
+                            commentMenuClickedHandler={() => this.commentMenuClickedHandler()}
                             likePostHandler={(post_id) => this.likeThePost(post_id)}
                             unLikePostHandler={(post_id) => this.unLikeThePost(post_id)}
+                            commentPostHandler={(post_id, comment) => this.commentThePost(post_id, comment)}
                             ref={this.postsComponent} 
                         />
                     </div>
@@ -147,7 +153,8 @@ NewsFeed.propTypes = {
     getPosts: PropTypes.func.isRequired,
     deletePost: PropTypes.func.isRequired,
     likePost: PropTypes.func.isRequired,
-    unLikePost: PropTypes.func.isRequired
+    unLikePost: PropTypes.func.isRequired,
+    createComment: PropTypes.func.isRequired
 }
 
 const mapStateToProps = state => ({
@@ -155,4 +162,4 @@ const mapStateToProps = state => ({
     auth: state.auth
 });
 
-export default connect(mapStateToProps, { getPosts, deletePost, likePost, unLikePost })(withRouter(NewsFeed));
+export default connect(mapStateToProps, { getPosts, deletePost, likePost, unLikePost, createComment })(withRouter(NewsFeed));

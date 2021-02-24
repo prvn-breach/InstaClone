@@ -14,6 +14,14 @@ import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
 import "./Post.css";
 
 export default class Post extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            comment: ''
+        }
+    }
+
     render() {
         const { _id, name, image, is_post_liked_by_current_user, likes, comments } = this.props;
         const imageLink = setFileUrl(image);
@@ -60,7 +68,7 @@ export default class Post extends Component {
                                 </IconButton>
                             )}
 
-                            <IconButton color="default" component="span" className="p-0">
+                            <IconButton color="default" component="span" className="p-0" onClick={() => this.props.onCommentMenuClicked()}>
                                 <ChatBubbleOutlineIcon />
                             </IconButton>
 
@@ -78,10 +86,24 @@ export default class Post extends Component {
                         {comments_list}
                     </div>
 
-                    {/* ADD COMMENTS */}
+                    {/* COMMENT INPUT */}
                     <div className="card-footer p-0 bg-white d-flex" style={{ height: '58px' }} id="comment_box">
-                        <input className="form-control border-0" placeholder="Add Comment" />
-                        <IconButton color="default" component="span" className="float-right p-0 mr-1">
+                        <input 
+                            onChange={(event) => this.setState({ comment: event.target.value })} 
+                            value={this.state.comment} 
+                            className="form-control border-0" 
+                            placeholder="Add Comment" 
+                        />
+                        <IconButton 
+                            onClick={() => {
+                                this.props.onCommentPostClicked(_id, this.state.comment);
+                                this.setState({ comment: '' });
+                            }} 
+                            disabled={!this.state.comment.trim()} 
+                            color="default" 
+                            component="span" 
+                            className="float-right p-0 mr-1"
+                        > 
                             <SendIcon />
                         </IconButton>
                     </div>

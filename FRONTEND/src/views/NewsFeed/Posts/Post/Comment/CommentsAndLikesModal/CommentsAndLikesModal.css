@@ -1,0 +1,42 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css');
+/* .bg-faded {
+    background-color: #f3f3f3;
+    max-height: 500px
+}
+
+.btn-round {
+    border-radius: 500px
+}
+
+.btn-round, .btn-round:hover, .btn-round:active {
+    border-color: transparent
+} */
+
+.modal.animate {
+    opacity: 0;
+}
+
+.modal.animate.show {
+    opacity: 1;
+    padding: 13% !important;
+}
+
+.modal .modal-dialog .modal-content {
+    border-radius: 1rem !important;
+}
+
+.modal.animate .modal-dialog {
+    -webkit-transform: translate(0, 0);
+    -ms-transform: translate(0, 0);
+    transform: translate(0, 0);    
+}
+
+.modal.animate .a-bounce {
+    -webkit-animation: bounceOut .5s;
+    animation: bounceOut .5s
+}
+
+.modal.animate.show .a-bounce {
+    -webkit-animation: bounceIn .5s;
+    animation: bounceIn .5s
+}
