@@ -11,7 +11,8 @@ import Posts from "./Posts/Posts";
 import Suggestions from "./Suggestions/Suggestions";
 import SuggestionBoxes from "./SuggestionBoxes/SuggestionBoxes";
 
-import Modal from "../Modal/Modal";
+import PostMenuModal from "../Modal/PostMenuModal";
+import CommentModal from "../Modal/CommentModal";
 
 
 import "./NewsFeed.css";
@@ -31,7 +32,8 @@ class NewsFeed extends Component {
         this.commentPost = openSocket("http://localhost:5000/posts/comment");
 
         this.postsComponent = React.createRef();
-        this.modal = React.createRef();
+        this.postMenuModal = React.createRef();
+        this.commentModal = React.createRef();
     }
 
 
@@ -62,7 +64,7 @@ class NewsFeed extends Component {
 
         this.deletedPost.on("deletePost", () => {
             this.props.getPosts();
-            this.modal.current.closeModal();
+            this.postMenuModal.current.closeModal();
         });
 
         this.likePost.on("likePost", post => this.updatePost(post));
@@ -89,7 +91,11 @@ class NewsFeed extends Component {
     }
 
     postMenuClickedHandler(post) {
-        this.modal.current.showModal(post, this.props.auth.user.id);
+        this.postMenuModal.current.showModal(post, this.props.auth.user.id);
+    }
+
+    commentMenuClickedHandler(post) {
+        this.commentModal.current.showModal(post, this.props.auth.user.id);
     }
 
     deletePost(post_id) {
@@ -120,7 +126,7 @@ class NewsFeed extends Component {
                             current_user={this.props.auth.user}
                             posts={this.postsProps.posts} 
                             postMenuClickedHandler={(post) => this.postMenuClickedHandler(post)} 
-                            commentMenuClickedHandler={() => this.commentMenuClickedHandler()}
+                            commentMenuClickedHandler={(post) => this.commentMenuClickedHandler(post)}
                             likePostHandler={(post_id) => this.likeThePost(post_id)}
                             unLikePostHandler={(post_id) => this.unLikeThePost(post_id)}
                             commentPostHandler={(post_id, comment) => this.commentThePost(post_id, comment)}
@@ -140,8 +146,11 @@ class NewsFeed extends Component {
                 </div>
 
 
-                {/* MODAL */}
-                <Modal ref={this.modal} deletePostHandler={(post_id) => this.deletePost(post_id)} />
+                {/* PostMenuModal */}
+                <PostMenuModal ref={this.postMenuModal} deletePostHandler={(post_id) => this.deletePost(post_id)} />
+
+                {/* CommentModal */}
+                <CommentModal ref={this.commentModal} />
             </div>
         )
     }
@@ -162,4 +171,13 @@ const mapStateToProps = state => ({
     auth: state.auth
 });
 
-export default connect(mapStateToProps, { getPosts, deletePost, likePost, unLikePost, createComment })(withRouter(NewsFeed));
+export default connect(
+    mapStateToProps, 
+    { 
+        getPosts, 
+        deletePost, 
+        likePost, 
+        unLikePost, 
+        createComment 
+    }
+)(withRouter(NewsFeed));

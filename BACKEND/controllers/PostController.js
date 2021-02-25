@@ -34,13 +34,12 @@ const getPosts = async (req, res) => {
     let posts;
     try {
         posts = await Post.find({ 'user': { $in: users } }).sort({ date: -1 });
-        socket.io.of("/posts/get").emit('getPosts', posts);
     } catch (error) {
         return res.status(500).json({ success: false, error: "Something Went Wrong For Getting Posts!" });
     }
 
     let all_posts = current_user_posts.concat(posts);
-
+    socket.io.of("/posts/get").emit('getPosts', all_posts);
     return res.json(all_posts);
 }
 

@@ -16,8 +16,8 @@ export default class Posts extends Component {
         this.props.postMenuClickedHandler(post);
     }
 
-    commentMenuClick() {
-        this.props.commentMenuClickedHandler();
+    commentMenuClick(post) {
+        this.props.commentMenuClickedHandler(post);
     }
 
     likePostClicked(post_id) {
@@ -45,13 +45,14 @@ export default class Posts extends Component {
         // Append data to Post Component
         let posts = this.posts.map((post, i) => <Post 
             key={i} 
-            onPostMenuClicked={() => this.postMenuClick(post)} 
-            onCommentMenuClicked={() => this.commentMenuClick()}
+            onPostMenuClicked={(post) => this.postMenuClick(post)} 
+            onCommentMenuClicked={(post) => this.commentMenuClick(post)}
             onLikePostClicked={(post_id) => this.likePostClicked(post_id)}
             onUnLikePostClicked={(post_id) => this.unLikePostClicked(post_id)}
             onCommentPostClicked={(post_id, comment) => this.commentPostClicked(post_id, comment)}
             {...post} 
         />);
+
         return (
             <div>
                 {/* STORIES */}
