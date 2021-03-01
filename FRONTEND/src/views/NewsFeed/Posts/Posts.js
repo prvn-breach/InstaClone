@@ -45,8 +45,8 @@ export default class Posts extends Component {
         // Append data to Post Component
         let posts = this.posts.map((post, i) => <Post 
             key={i} 
-            onPostMenuClicked={(post) => this.postMenuClick(post)} 
-            onCommentMenuClicked={(post) => this.commentMenuClick(post)}
+            onPostMenuClicked={() => this.postMenuClick(post)} 
+            onCommentMenuClicked={() => this.commentMenuClick(post)}
             onLikePostClicked={(post_id) => this.likePostClicked(post_id)}
             onUnLikePostClicked={(post_id) => this.unLikePostClicked(post_id)}
             onCommentPostClicked={(post_id, comment) => this.commentPostClicked(post_id, comment)}

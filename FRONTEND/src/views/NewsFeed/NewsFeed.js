@@ -11,8 +11,8 @@ import Posts from "./Posts/Posts";
 import Suggestions from "./Suggestions/Suggestions";
 import SuggestionBoxes from "./SuggestionBoxes/SuggestionBoxes";
 
-import PostMenuModal from "../Modal/PostMenuModal";
-import CommentModal from "../Modal/CommentModal";
+import PostMenuModal from "../Modal/PostMenuModal/PostMenuModal";
+import CommentModal from "../Modal/CommentModal/CommentModal";
 
 
 import "./NewsFeed.css";
@@ -22,6 +22,11 @@ class NewsFeed extends Component {
     constructor() {
         super();
         this.postsProps = null;
+
+        this.state = {
+            openPostMenuModal: false,
+            openCommentMenuModal: false
+        }
 
         this.getPosts = openSocket("http://localhost:5000/posts/get");
         this.createdPost = openSocket("http://localhost:5000/posts/create");
@@ -33,13 +38,23 @@ class NewsFeed extends Component {
 
         this.postsComponent = React.createRef();
         this.postMenuModal = React.createRef();
-        this.commentModal = React.createRef();
+        this.commentMenuModal = React.createRef();
     }
-
 
     componentDidMount() {
         this.props.getPosts();
+        this.connectSockets();
         this.onSocketOpen();
+    }
+
+    connectSockets() {
+        this.getPosts = openSocket("http://localhost:5000/posts/get");
+        this.createdPost = openSocket("http://localhost:5000/posts/create");
+        this.updatedPost = openSocket("http://localhost:5000/posts/update");
+        this.deletedPost = openSocket("http://localhost:5000/posts/delete");
+        this.likePost = openSocket("http://localhost:5000/posts/like");
+        this.unlikePost = openSocket("http://localhost:5000/posts/unlike");
+        this.commentPost = openSocket("http://localhost:5000/posts/comment");
     }
 
     onSocketOpen() {
@@ -47,9 +62,9 @@ class NewsFeed extends Component {
 
         this.createdPost.on("createPost", post => {
             let auth_user = this.props.auth.user;
-            console.log("This Post Belongs To Current User: "+ (post['user'] === auth_user['_id']));
-            console.log("This Post Belongs To Current User Followers: "+auth_user['followers'].includes(post['user']));
-            console.log("This Post Belongs To Current User Follwing: "+auth_user['following'].includes(post['user']));
+            console.log("This Post Belongs To Current User: " + (post['user'] === auth_user['_id']));
+            console.log("This Post Belongs To Current User Followers: " + auth_user['followers'].includes(post['user']));
+            console.log("This Post Belongs To Current User Follwing: " + auth_user['following'].includes(post['user']));
             if (
                 post['user'] === auth_user['_id'] ||
                 auth_user['followers'].includes(post['user']) ||
@@ -91,11 +106,13 @@ class NewsFeed extends Component {
     }
 
     postMenuClickedHandler(post) {
-        this.postMenuModal.current.showModal(post, this.props.auth.user.id);
+        this.setState({ openPostMenuModal: true, openCommentMenuModal: false });
+        setTimeout(() => this.postMenuModal.current.showModal(post, this.props.auth.user.id), 50);
     }
 
     commentMenuClickedHandler(post) {
-        this.commentModal.current.showModal(post, this.props.auth.user.id);
+        this.setState({ openPostMenuModal: false, openCommentMenuModal: true });
+        setTimeout(() => this.commentMenuModal.current.showModal(post, this.props.auth.user.id), 50);
     }
 
     deletePost(post_id) {
@@ -122,15 +139,15 @@ class NewsFeed extends Component {
 
                     {/* LEFT SIDE POSTS */}
                     <div className="col-lg-7 p-0" id="posts_column">
-                        <Posts 
+                        <Posts
                             current_user={this.props.auth.user}
-                            posts={this.postsProps.posts} 
-                            postMenuClickedHandler={(post) => this.postMenuClickedHandler(post)} 
+                            posts={this.postsProps.posts}
+                            postMenuClickedHandler={(post) => this.postMenuClickedHandler(post)}
                             commentMenuClickedHandler={(post) => this.commentMenuClickedHandler(post)}
                             likePostHandler={(post_id) => this.likeThePost(post_id)}
                             unLikePostHandler={(post_id) => this.unLikeThePost(post_id)}
                             commentPostHandler={(post_id, comment) => this.commentThePost(post_id, comment)}
-                            ref={this.postsComponent} 
+                            ref={this.postsComponent}
                         />
                     </div>
 
@@ -146,11 +163,10 @@ class NewsFeed extends Component {
                 </div>
 
 
-                {/* PostMenuModal */}
-                <PostMenuModal ref={this.postMenuModal} deletePostHandler={(post_id) => this.deletePost(post_id)} />
+                {/* POST MENU MODAL */}
+                {this.state.openPostMenuModal && <PostMenuModal ref={this.postMenuModal} deletePostHandler={(post_id) => this.deletePost(post_id)} />}
 
-                {/* CommentModal */}
-                <CommentModal ref={this.commentModal} />
+                {this.state.openCommentMenuModal && <CommentModal ref={this.commentMenuModal} />}
             </div>
         )
     }
@@ -172,12 +188,12 @@ const mapStateToProps = state => ({
 });
 
 export default connect(
-    mapStateToProps, 
-    { 
-        getPosts, 
-        deletePost, 
-        likePost, 
-        unLikePost, 
-        createComment 
+    mapStateToProps,
+    {
+        getPosts,
+        deletePost,
+        likePost,
+        unLikePost,
+        createComment
     }
 )(withRouter(NewsFeed));
