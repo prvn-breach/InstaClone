@@ -23,13 +23,29 @@ export const getSuggestions = () => dispatch => {
             dispatch({
                 type: GET_SUGGESTIONS,
                 payload: res.data.data.data
-            })    
+            })
         )
-        .catch(err => 
+        .catch(err =>
             dispatch({
                 type: GET_SUGGESTIONS,
                 payload: {}
-            })    
+            })
+        )
+}
+
+export const followUser = (user_id) => dispatch => {
+    axios.post('http://localhost:5000/api/users/follow', { user_id: user_id })
+        .then(res =>
+            dispatch({
+                type: GET_SUGGESTIONS,
+                payload: res.data.data.data
+            })
+        )
+        .catch(err =>
+            dispatch({
+                type: GET_SUGGESTIONS,
+                payload: {}
+            })
         )
 }
 
