@@ -6,7 +6,7 @@ const socket = require("../server");
 const Post = require('../models/Post');
 const User = require('../models/User');
 
-const getFollowersByUserId = async (user_id) => {
+const getConnectionsUserIdsList = async (user_id) => {
     let current_user;
     try {
         current_user = await User.findById(user_id, { followers: 1, following: 1 });
@@ -20,7 +20,7 @@ const getFollowersByUserId = async (user_id) => {
 
 const getPosts = async (req, res) => {
 
-    let users = await getFollowersByUserId(req.user._id);
+    let user_ids = await getConnectionsUserIdsList(req.user._id);
 
     let current_user_posts;
     try {
@@ -29,11 +29,9 @@ const getPosts = async (req, res) => {
         return res.status(500).json({ success: false, error: "[getPosts Func] Something Went Wrong by Getting Current User Posts!" });
     }
 
-    
-
     let posts;
     try {
-        posts = await Post.find({ 'user': { $in: users } }).sort({ date: -1 });
+        posts = await Post.find({ 'user': { $in: user_ids } }).sort({ date: -1 });
     } catch (error) {
         return res.status(500).json({ success: false, error: "Something Went Wrong For Getting Posts!" });
     }

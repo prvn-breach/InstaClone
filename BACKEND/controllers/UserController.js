@@ -233,13 +233,59 @@ const getFollowing = async (req, res) => {
         return res.status(500).json({ success: false, message: "[Getting Auth User] Something Went Wrong!" })
     }
 
-
     let following = await getUsersByIds(current_user['following']);
     if (!following['success']) {
         res.status(500).json(following);
     }
 
     return res.status(200).json({ success: true, data: following['data'] });
+}
+
+const getSuggestions = async (req, res) => {
+    let current_user;
+
+    try {
+        current_user = await User.findById(req.user._id);
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "[getSuggestions func] Something Went Wrong!" })
+    }
+
+    let connections = current_user['followers'].concat(current_user['following'])
+
+    let response = await getUsersByIds(connections);
+    if (!response['success']) {
+        res.status(500).json(response);
+    }
+
+    let users = response['data'];
+
+    // Get suggestions user ids
+    let suggestions_user_ids = [];
+    for (let i = 0; i < users.length; i++) {
+        let ids = users[i]['followers'].concat(users[i]['following']);
+        suggestions_user_ids = suggestions_user_ids.concat(ids);
+    };
+
+    // Unique elements
+    suggestions_user_ids = suggestions_user_ids.filter(onlyUnique);
+    
+    // Remove current user id from the list
+    suggestions_user_ids = suggestions_user_ids.filter(
+        id => (
+            String(id) !== String(req.user._id) && 
+            !connections.includes(String(id))
+        )
+    );
+
+    // Current User Suggestions
+    let suggestions = await getUsersByIds(suggestions_user_ids);
+
+    return res.status(200).json({ success: true, data: suggestions });
+}
+
+// Unique array elements
+const onlyUnique = (value, index, self) => {
+    return self.indexOf(value) === index;
 }
 
 exports.getUsers = getUsers;
@@ -250,3 +296,4 @@ exports.followUser = followUser;
 exports.unFollowUser = unFollowUser;
 exports.getFollowers = getFollowers;
 exports.getFollowing = getFollowing;
+exports.getSuggestions = getSuggestions;
