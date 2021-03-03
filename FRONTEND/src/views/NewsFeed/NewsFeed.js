@@ -25,7 +25,7 @@ class NewsFeed extends Component {
 
         this.state = {
             openPostMenuModal: false,
-            openCommentMenuModal: false
+            openCommentModal: false
         }
 
         this.getPosts = openSocket("http://localhost:5000/posts/get");
@@ -38,7 +38,7 @@ class NewsFeed extends Component {
 
         this.postsComponent = React.createRef();
         this.postMenuModal = React.createRef();
-        this.commentMenuModal = React.createRef();
+        this.commentModal = React.createRef();
     }
 
     componentDidMount() {
@@ -106,13 +106,13 @@ class NewsFeed extends Component {
     }
 
     postMenuClickedHandler(post) {
-        this.setState({ openPostMenuModal: true, openCommentMenuModal: false });
-        setTimeout(() => this.postMenuModal.current.showModal(post, this.props.auth.user.id), 50);
+        this.setState({ openPostMenuModal: true, openCommentModal: false });
+        setTimeout(() => this.postMenuModal.current.showModal(post, this.props.auth.user.id), 100);
     }
 
     commentMenuClickedHandler(post) {
-        this.setState({ openPostMenuModal: false, openCommentMenuModal: true });
-        setTimeout(() => this.commentMenuModal.current.showModal(post, this.props.auth.user.id), 50);
+        this.setState({ openPostMenuModal: false, openCommentModal: true });
+        setTimeout(() => this.commentModal.current.showModal(post, this.props.auth.user.id), 100);
     }
 
     deletePost(post_id) {
@@ -166,7 +166,8 @@ class NewsFeed extends Component {
                 {/* POST MENU MODAL */}
                 {this.state.openPostMenuModal && <PostMenuModal ref={this.postMenuModal} deletePostHandler={(post_id) => this.deletePost(post_id)} />}
 
-                {this.state.openCommentMenuModal && <CommentModal ref={this.commentMenuModal} />}
+                {/* COMMENT MODAL */}
+                {this.state.openCommentModal && <CommentModal ref={this.commentModal} />}
             </div>
         )
     }
