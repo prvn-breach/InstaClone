@@ -20,9 +20,7 @@ export default class SuggestionBoxes extends Component {
                     <a href="#" className="nav-link p-0 float-right">See All</a>
                 </div>
                 <div id="suggestion_col" className="col-lg-12 ml-0 pl-3">
-                    <div className="d-flex justify-content-start" style={{ overflowX: "auto" }}>
-                        {suggestion_boxes}
-                    </div>
+                    <div className="d-flex justify-content-start" style={{ overflowX: "auto" }}>{suggestion_boxes}</div>
                 </div>
             </React.Fragment>
         )

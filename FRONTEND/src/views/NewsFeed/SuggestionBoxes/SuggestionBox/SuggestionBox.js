@@ -3,6 +3,14 @@ import React, { Component } from 'react'
 import "./SuggestionBox.css"
 
 export default class SuggestionBox extends Component {
+
+    constructor() {
+        super();
+        this.state = {
+            followed: false
+        }
+    }
+
     render() {
         const { username } = this.props;
         return (
@@ -17,13 +25,11 @@ export default class SuggestionBox extends Component {
                             alt=""
                         />
                     </div>
-                    <div className="text-center font-weight-bold mt-3">
-                        {username}
-                                </div>
+                    <div className="text-center font-weight-bold mt-3">{username}</div>
                     <div className="pt-4">
-                        <button
-                            className="btn btn-primary w-100 py-0 font-weight-bold"
-                        >Follow</button>
+                        {!this.state.followed ? (<button className="btn btn-primary w-100 py-0 font-weight-bold" onClick={() => this.setState({ followed: true })}>Follow</button>) : (
+                            <button className="btn btn-light w-100 py-0 font-weight-bold">Followed</button>
+                        )}
                     </div>
                 </div>
             </div>
