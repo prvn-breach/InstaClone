@@ -6,6 +6,7 @@ import openSocket from "socket.io-client";
 
 
 import { getPosts, deletePost, likePost, unLikePost, createComment } from "../../actions/postActions";
+import { getSuggestions } from "../../actions/userActions";
 
 import Posts from "./Posts/Posts";
 import Suggestions from "./Suggestions/Suggestions";
@@ -43,6 +44,8 @@ class NewsFeed extends Component {
 
     componentDidMount() {
         this.props.getPosts();
+        this.props.getSuggestions();
+
         this.connectSockets();
         this.onSocketOpen();
     }
@@ -153,13 +156,13 @@ class NewsFeed extends Component {
 
                     {/* RIGHT SIDE SUGGESTIONS */}
                     <div className="col d-none d-lg-block p-5" id="profile_column">
-                        <Suggestions />
+                        <Suggestions suggestions={this.props.suggestions} />
                     </div>
                 </div>
 
                 {/* BOTTOM SIDE SUGGESTION BOXES */}
                 <div id="suggestion_row" className="row bg-white mb-5 py-4 border">
-                    <SuggestionBoxes />
+                    <SuggestionBoxes suggestions={this.props.suggestions} />
                 </div>
 
 
@@ -180,12 +183,14 @@ NewsFeed.propTypes = {
     deletePost: PropTypes.func.isRequired,
     likePost: PropTypes.func.isRequired,
     unLikePost: PropTypes.func.isRequired,
-    createComment: PropTypes.func.isRequired
+    createComment: PropTypes.func.isRequired,
+    getSuggestions: PropTypes.func.isRequired
 }
 
 const mapStateToProps = state => ({
     posts: state.posts,
-    auth: state.auth
+    auth: state.auth,
+    suggestions: state.users.suggestions
 });
 
 export default connect(
@@ -195,6 +200,7 @@ export default connect(
         deletePost,
         likePost,
         unLikePost,
-        createComment
+        createComment,
+        getSuggestions
     }
 )(withRouter(NewsFeed));

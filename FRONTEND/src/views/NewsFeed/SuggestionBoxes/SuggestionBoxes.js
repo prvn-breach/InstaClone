@@ -4,15 +4,15 @@ import SuggestionBox from "./SuggestionBox/SuggestionBox";
 export default class SuggestionBoxes extends Component {
     render() {
 
-        let suggestion_boxes_list = [
-            { id: 1, username: "prvn_king" },
-            { id: 2, username: "peter_parker" },
-            { id: 4, username: "billgates" },
-            { id: 5, username: "elon_musk" },
-            { id: 6, username: "zeff_bezus" },
-        ];
+        // let suggestion_boxes_list = [
+        //     { id: 1, username: "prvn_king" },
+        //     { id: 2, username: "peter_parker" },
+        //     { id: 4, username: "billgates" },
+        //     { id: 5, username: "elon_musk" },
+        //     { id: 6, username: "zeff_bezus" },
+        // ];
 
-        let suggestion_boxes = suggestion_boxes_list.map((suggestion_box, i) => <SuggestionBox key={i} {...suggestion_box} />)
+        let suggestion_boxes = this.props.suggestions.map((suggestion_box, i) => <SuggestionBox key={i} {...suggestion_box} />)
         return (
             <React.Fragment>
                 <div className="w-100 col-lg-12 mb-2">
