@@ -143,7 +143,7 @@ const deletePost = (req, res) => {
 const likePost = (req, res) => {
     Post.findById(req.params.id).then(post => {
         if (post.likes.filter(like => like.user.toString() == req.user.id).length > 0) {
-            return res.status(400).json({ alreadyliked: 'User already likes this post' });
+            return res.status(400).json({ error: true,  message: 'User already likes this post' });
         }
 
         // like
@@ -164,7 +164,7 @@ const unlikePost = (req, res) => {
         ).length === 0) {
             return res
                 .status(400)
-                .json({ notliked: 'You have not yet liked' });
+                .json({ error: true,  message: 'You have not yet liked this post' });
         }
 
         // Remove Index
@@ -220,7 +220,7 @@ const comment = (req, res) => {
             })
                 .catch(err => res.status(500).json(err));
         })
-        .catch(err => res.status(404).json({ nopostfound: 'No Post found for that ID' }));
+        .catch(err => res.status(404).json({ error: true,  message: 'No Post found for that ID' }));
 }
 
 exports.getPosts = getPosts;

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { CLEAR_USERS, GET_USERS, GET_USER, GET_SUGGESTIONS } from "./types";
+import { CLEAR_USERS, GET_USERS, GET_USER, GET_SUGGESTIONS, GET_ERRORS } from "./types";
 
 export const getUsers = () => dispatch => {
     axios.get('http://localhost:5000/api/users')
@@ -27,24 +27,40 @@ export const getSuggestions = () => dispatch => {
         )
         .catch(err =>
             dispatch({
-                type: GET_SUGGESTIONS,
-                payload: {}
+                type: GET_ERRORS,
+                payload: err.response.data
             })
         )
 }
 
 export const followUser = (user_id) => dispatch => {
     axios.post('http://localhost:5000/api/users/follow', { user_id: user_id })
-        .then(res =>
-            dispatch({
-                type: GET_SUGGESTIONS,
-                payload: res.data.data.data
-            })
-        )
+        // .then(() =>
+        //     dispatch({
+        //         type: GET_SUGGESTIONS,
+        //         payload: res.data.data.data
+        //     })
+        // )
         .catch(err =>
             dispatch({
-                type: GET_SUGGESTIONS,
-                payload: {}
+                type: GET_ERRORS,
+                payload: err.response.data
+            })
+        )
+}
+
+export const unfollowUser = (user_id) => dispatch => {
+    axios.post('http://localhost:5000/api/users/unfollow', { user_id: user_id })
+        // .then(res =>
+        //     dispatch({
+        //         type: GET_SUGGESTIONS,
+        //         payload: res.data.data.data
+        //     })
+        // )
+        .catch(err =>
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
             })
         )
 }

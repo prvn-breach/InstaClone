@@ -12,7 +12,7 @@ export default class SuggestionBox extends Component {
     }
 
     render() {
-        const { username } = this.props;
+        const { username, _id } = this.props;
         return (
             <div>
                 <div className="border rounded p-3 mr-2" style={{ height: "185px" }}>
@@ -27,7 +27,7 @@ export default class SuggestionBox extends Component {
                     </div>
                     <div className="text-center font-weight-bold mt-3">{username}</div>
                     <div className="pt-4">
-                        {!this.state.followed ? (<button className="btn btn-primary w-100 py-0 font-weight-bold" onClick={() => this.setState({ followed: true })}>Follow</button>) : (
+                        {!this.state.followed ? (<button className="btn btn-primary w-100 py-0 font-weight-bold" onClick={() => { this.setState({ followed: true }); this.props.onfollowTheUser(_id); }}>Follow</button>) : (
                             <button className="btn btn-light w-100 py-0 font-weight-bold">Followed</button>
                         )}
                     </div>

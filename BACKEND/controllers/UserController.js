@@ -146,13 +146,13 @@ const followUser = async (req, res) => {
         updated_followed_user = await followed_user.save();
         updated_current_user = await current_user.save();
     } catch (e) {
-        return res.status(500).json(e);
+        return res.status(500).json({ error: true, message: "Something Went Wrong in unfollowedUser [func] ", error_details: e});
     }
 
-    socket.io.of("/user/follow").emit('followUser', updated_followed_user);
-    socket.io.of("/user/getAuthUsers").emit('getAuthUsers', { current_user: updated_current_user, followed_user: updated_followed_user});
+    socket.io.of("/user/follow").emit('followUser', { current_user: updated_current_user, followed_user: updated_followed_user});
 
     res.status(200).json({
+        error: false,
         message: "Followed Succefully"
     })
 }
@@ -195,13 +195,13 @@ const unFollowUser = async (req, res) => {
         updated_unfollowed_user = await unfollowed_user.save();
         updated_current_user = await current_user.save();
     } catch (e) {
-        return res.status(500).json(e);
+        return res.status(500).json({ error: true, message: "Something Went Wrong in unfollowedUser [func] ", error_details: e});
     }
 
-    socket.io.of("/user/unfollow").emit('unfollowUser', updated_unfollowed_user);
-    socket.io.of("/user/getAuthUsers").emit('getAuthUsers', { current_user: updated_current_user, followed_user: updated_unfollowed_user});
+    socket.io.of("/user/unfollow").emit('unfollowUser', { current_user: updated_current_user, unfollowed_user: updated_unfollowed_user});
 
     res.status(200).json({
+        errors:false,
         message: "Unfollowed Succefully"
     })
 }

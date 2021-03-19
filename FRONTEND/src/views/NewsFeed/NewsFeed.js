@@ -6,7 +6,7 @@ import openSocket from "socket.io-client";
 
 
 import { getPosts, deletePost, likePost, unLikePost, createComment } from "../../actions/postActions";
-import { getSuggestions } from "../../actions/userActions";
+import { getSuggestions, followUser, unfollowUser } from "../../actions/userActions";
 
 import Posts from "./Posts/Posts";
 import Suggestions from "./Suggestions/Suggestions";
@@ -36,6 +36,8 @@ class NewsFeed extends Component {
         this.likePost = openSocket("http://localhost:5000/posts/like");
         this.unlikePost = openSocket("http://localhost:5000/posts/unlike");
         this.commentPost = openSocket("http://localhost:5000/posts/comment");
+        this.followUser = openSocket("http://localhost:5000/user/follow");
+        this.unfollowUser = openSocket("http://localhost:5000/user/unfollow");
 
         this.postsComponent = React.createRef();
         this.postMenuModal = React.createRef();
@@ -50,6 +52,16 @@ class NewsFeed extends Component {
         this.onSocketOpen();
     }
 
+    componentWillReceiveProps() {
+        if (this.props.errors['error']) { 
+            // let error_message= this.props.errors['message'];
+            if (window.confirm("There is something problem in sockets please refresh this page to resolve this issue...")) {
+                console.log("PAGE REFRESHED...");
+                window.reload(true);
+            }
+        }
+    }
+
     connectSockets() {
         this.getPosts = openSocket("http://localhost:5000/posts/get");
         this.createdPost = openSocket("http://localhost:5000/posts/create");
@@ -58,6 +70,8 @@ class NewsFeed extends Component {
         this.likePost = openSocket("http://localhost:5000/posts/like");
         this.unlikePost = openSocket("http://localhost:5000/posts/unlike");
         this.commentPost = openSocket("http://localhost:5000/posts/comment");
+        this.followUser = openSocket("http://localhost:5000/user/follow");
+        this.unfollowUser = openSocket("http://localhost:5000/user/unfollow");
     }
 
     onSocketOpen() {
@@ -65,9 +79,9 @@ class NewsFeed extends Component {
 
         this.createdPost.on("createPost", post => {
             let auth_user = this.props.auth.user;
-            console.log("This Post Belongs To Current User: " + (post['user'] === auth_user['_id']));
-            console.log("This Post Belongs To Current User Followers: " + auth_user['followers'].includes(post['user']));
-            console.log("This Post Belongs To Current User Follwing: " + auth_user['following'].includes(post['user']));
+            // console.log("This Post Belongs To Current User: " + (post['user'] === auth_user['_id']));
+            // console.log("This Post Belongs To Current User Followers: " + auth_user['followers'].includes(post['user']));
+            // console.log("This Post Belongs To Current User Follwing: " + auth_user['following'].includes(post['user']));
             if (
                 post['user'] === auth_user['_id'] ||
                 auth_user['followers'].includes(post['user']) ||
@@ -90,6 +104,26 @@ class NewsFeed extends Component {
         this.unlikePost.on("unlikePost", post => this.updatePost(post));
 
         this.commentPost.on("commentPost", post => this.updatePost(post));
+
+        this.followUser.on('followUser', res => {
+            let auth_user = this.props.auth.user;
+            if (
+                auth_user['_id'] === res['current_user']['_id'] || 
+                auth_user['_id'] === res['followed_user']['_id']
+            ) {
+                this.props.getSuggestions();
+            }
+        });
+
+        this.unfollowUser.on('unfollowUser', res => {
+            let auth_user = this.props.auth.user;
+            if (
+                auth_user['_id'] === res['current_user']['_id'] || 
+                auth_user['_id'] === res['unfollowed_user']['_id']
+            ) {
+                this.props.getSuggestions();
+            }
+        });
     }
 
     updatePost(updatedPost) {
@@ -106,6 +140,8 @@ class NewsFeed extends Component {
         this.likePost.disconnect();
         this.unlikePost.disconnect();
         this.commentPost.disconnect();
+        this.followUser.disconnect();
+        this.unfollowUser.disconnect();
     }
 
     postMenuClickedHandler(post) {
@@ -132,6 +168,10 @@ class NewsFeed extends Component {
 
     commentThePost(post_id, comment) {
         this.props.createComment(comment, post_id);
+    }
+
+    followTheUser(user_id) {
+        this.props.followUser(user_id);
     }
 
     render() {
@@ -162,7 +202,7 @@ class NewsFeed extends Component {
 
                 {/* BOTTOM SIDE SUGGESTION BOXES */}
                 <div id="suggestion_row" className="row bg-white mb-5 py-4 border">
-                    <SuggestionBoxes suggestions={this.props.suggestions} />
+                    <SuggestionBoxes suggestions={this.props.suggestions} onfollowUser={(user_id) => this.followTheUser(user_id)} />
                 </div>
 
 
@@ -179,6 +219,7 @@ class NewsFeed extends Component {
 NewsFeed.propTypes = {
     posts: PropTypes.object.isRequired,
     auth: PropTypes.object.isRequired,
+    errors: PropTypes.object.isRequired,
     getPosts: PropTypes.func.isRequired,
     deletePost: PropTypes.func.isRequired,
     likePost: PropTypes.func.isRequired,
@@ -190,7 +231,8 @@ NewsFeed.propTypes = {
 const mapStateToProps = state => ({
     posts: state.posts,
     auth: state.auth,
-    suggestions: state.users.suggestions
+    suggestions: state.users.suggestions,
+    errors: state.errors
 });
 
 export default connect(
@@ -201,6 +243,8 @@ export default connect(
         likePost,
         unLikePost,
         createComment,
-        getSuggestions
+        getSuggestions,
+        followUser,
+        unfollowUser
     }
 )(withRouter(NewsFeed));

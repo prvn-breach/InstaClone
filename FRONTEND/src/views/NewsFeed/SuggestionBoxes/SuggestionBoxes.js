@@ -12,7 +12,7 @@ export default class SuggestionBoxes extends Component {
         //     { id: 6, username: "zeff_bezus" },
         // ];
 
-        let suggestion_boxes = this.props.suggestions.map((suggestion_box, i) => <SuggestionBox key={i} {...suggestion_box} />)
+        let suggestion_boxes = this.props.suggestions.map((suggestion_box, i) => <SuggestionBox key={i} onfollowTheUser={(user_id) => this.props.onfollowUser(user_id)} {...suggestion_box} />)
         return (
             <React.Fragment>
                 <div className="w-100 col-lg-12 mb-2">

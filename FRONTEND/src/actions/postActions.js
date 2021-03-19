@@ -2,7 +2,8 @@ import axios from "axios";
 import { 
     GET_POSTS,
     CLEAR_POSTS,
-    GET_POST
+    GET_POST,
+    GET_ERRORS
 } from "./types";
 
 export const createPost = (newPost) => dispatch => {
@@ -62,8 +63,8 @@ export const likePost = (id) => dispatch => {
         )
         .catch(err => 
             dispatch({
-                type: CLEAR_POSTS,
-                payload: {}
+                type: GET_ERRORS,
+                payload: err.response.data
             })
         )
 }
@@ -78,8 +79,8 @@ export const unLikePost = (id) => dispatch => {
         )
         .catch(err => 
             dispatch({
-                type: CLEAR_POSTS,
-                payload: {}
+                type: GET_ERRORS,
+                payload: err.response.data
             })
         )
 }
