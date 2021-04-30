@@ -1,10 +1,15 @@
 const validation = require('../helpers/validate');
 const isEmpty = require('../validation/is-empty');
-const socket = require("../server");
 
 // Load Models
 const User = require('../models/User');
 // const { post } = require('../routes/api/auth');
+
+let socketClient;
+
+const initSocketInUsers = (client) => {
+    socketClient = client;
+}
 
 const getUsersByIds = async (user_ids, fields = null) => {
     let users;
@@ -100,7 +105,6 @@ const getCurrentUser = async (req, res) => {
     if (!user['success']) {
         return res.json(user);
     }
-    // socket.io.of("/user/getAuthUsers").emit('getAuthUsers', user['data']);
 
     res.status(201).json({
         success: true,
@@ -114,15 +118,10 @@ const followUser = async (req, res) => {
         'user_id': 'string|required'
     }
 
-    let errors = {};
-    validation(req.body, validationRules, {}, (err, status) => {
-        if (!status) {
-            for (const [key, value] of Object.entries(err.errors)) {
-                errors[key] = value[0]
-            }
-            return res.status(422).json(errors);
-        }
-    })
+    let errors = validation(req.body, validationRules, {});
+    if (Object.keys(errors).length > 0) {
+        return res.status(422).json(errors);
+    }
 
     let followed_user = await User.findById(req.body.user_id);
     if (isEmpty(followed_user)) {
@@ -149,8 +148,6 @@ const followUser = async (req, res) => {
         return res.status(500).json({ error: true, message: "Something Went Wrong in unfollowedUser [func] ", error_details: e});
     }
 
-    socket.io.of("/user/follow").emit('followUser', { current_user: updated_current_user, followed_user: updated_followed_user});
-
     res.status(200).json({
         error: false,
         message: "Followed Succefully"
@@ -163,15 +160,10 @@ const unFollowUser = async (req, res) => {
         'user_id': 'string|required'
     }
 
-    let errors = {};
-    validation(req.body, validationRules, {}, (err, status) => {
-        if (!status) {
-            for (const [key, value] of Object.entries(err.errors)) {
-                errors[key] = value[0]
-            }
-            return res.status(422).json(errors);
-        }
-    })
+    let errors = validation(req.body, validationRules, {});
+    if (Object.keys(errors).length > 0) {
+        return res.status(422).json(errors);
+    }
 
     let unfollowed_user = await User.findById(req.body.user_id);
     if (isEmpty(unfollowed_user)) {
@@ -197,8 +189,6 @@ const unFollowUser = async (req, res) => {
     } catch (e) {
         return res.status(500).json({ error: true, message: "Something Went Wrong in unfollowedUser [func] ", error_details: e});
     }
-
-    socket.io.of("/user/unfollow").emit('unfollowUser', { current_user: updated_current_user, unfollowed_user: updated_unfollowed_user});
 
     res.status(200).json({
         errors:false,
@@ -297,3 +287,4 @@ exports.unFollowUser = unFollowUser;
 exports.getFollowers = getFollowers;
 exports.getFollowing = getFollowing;
 exports.getSuggestions = getSuggestions;
+exports.initSocketInUsers = initSocketInUsers;

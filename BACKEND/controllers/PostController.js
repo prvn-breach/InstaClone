@@ -1,10 +1,15 @@
 const validation = require('../helpers/validate');
 const isEmpty = require('../validation/is-empty');
-const socket = require("../server");
 
 // Load Models
 const Post = require('../models/Post');
 const User = require('../models/User');
+
+let socketClient;
+
+const initSocketInPosts = (client) => {
+    socketClient = client;
+}
 
 const getConnectionsUserIdsList = async (user_id) => {
     let current_user;
@@ -37,7 +42,7 @@ const getPosts = async (req, res) => {
     }
 
     let all_posts = current_user_posts.concat(posts);
-    socket.io.of("/posts/get").emit('getPosts', all_posts);
+    // socketClient.emit('getPosts', all_posts);
     return res.json(all_posts);
 }
 
@@ -47,20 +52,15 @@ const getPostById = (req, res) => {
         .catch(err => res.status(404).json({ nopostfound: 'No post found with that ID' }));
 }
 
-const createPost = (req, res) => {
+const createPost = async (req, res) => {
     const validationRules = {
         'text': 'required|string'
     }
 
-    let errors = {};
-    validation(req.body, validationRules, {}, (err, status) => {
-        if (!status) {
-            for (const [key, value] of Object.entries(err.errors)) {
-                errors[key] = value[0]
-            }
-            return res.status(422).json(errors);
-        }
-    })
+    let errors = validation(req.body, validationRules, {});
+    if (Object.keys(errors).length > 0) {
+        return res.status(422).json(errors);
+    }
 
     const { text } = req.body;
 
@@ -73,12 +73,14 @@ const createPost = (req, res) => {
         user: id
     })
 
-    newPost.save()
-        .then(post => {
-            res.json(post);
-            socket.io.of("/posts/create").emit('createPost', post);
-        })
-        .catch(err => res.status(500).json(err));
+    try {
+        const post = await newPost.save();
+        res.json(post);
+        socketClient.emit('createPost', post);
+        socketClient.broadcast.emit('createPost', post);
+    } catch (error) {
+        res.status(500).json(error);
+    }
 }
 
 const updatePost = (req, res) => {
@@ -87,15 +89,10 @@ const updatePost = (req, res) => {
         'text': 'required|string'
     }
 
-    let errors = {};
-    validation(req.body, validationRules, {}, (err, status) => {
-        if (!status) {
-            for (const [key, value] of Object.entries(err.errors)) {
-                errors[key] = value[0]
-            }
-            return res.status(422).json(errors);
-        }
-    })
+    let errors = validation(req.body, validationRules, {});
+    if (Object.keys(errors).length > 0) {
+        return res.status(422).json(errors);
+    }
 
     const { text } = req.body;
 
@@ -114,7 +111,8 @@ const updatePost = (req, res) => {
         post.save()
             .then(post => {
                 res.json(post);
-                socket.io.of("/posts/update").emit('updatePost', post);
+                socketClient.emit('updatePost', post);
+                socketClient.broadcast.emit('updatePost', post);
             })
             .catch(err => res.status(500).json(err));
     })
@@ -134,7 +132,8 @@ const deletePost = (req, res) => {
         post.remove()
             .then((post) => {
                 res.json({ success: true });
-                socket.io.of("/posts/delete").emit('deletePost', post);
+                socketClient.emit('deletePost', post);
+                socketClient.broadcast.emit('deletePost', post);
             })
             .catch(err => res.status(500).json(err));
     })
@@ -152,7 +151,8 @@ const likePost = (req, res) => {
         //save
         post.save().then(post => {
             res.json(post);
-            socket.io.of("/posts/like").emit('likePost', post);
+            socketClient.emit('likePost', post);
+            socketClient.broadcast.emit('likePost', post);
         });
     });
 }
@@ -178,7 +178,8 @@ const unlikePost = (req, res) => {
         // Save
         post.save().then(post => {
             res.json(post);
-            socket.io.of("/posts/unlike").emit('unlikePost', post);
+            socketClient.emit('unlikePost', post);
+            socketClient.broadcast.emit('unlikePost', post);
         });
     });
 }
@@ -189,15 +190,10 @@ const comment = (req, res) => {
         'text': 'required|string'
     }
 
-    let errors = {};
-    validation(req.body, validationRules, {}, (err, status) => {
-        if (!status) {
-            for (const [key, value] of Object.entries(err.errors)) {
-                errors[key] = value[0]
-            }
-            return res.status(422).json(errors);
-        }
-    })
+    let errors = validation(req.body, validationRules, {});
+    if (Object.keys(errors).length > 0) {
+        return res.status(422).json(errors);
+    }
 
     Post.findById(req.params.id)
         .then(post => {
@@ -216,7 +212,8 @@ const comment = (req, res) => {
             // Save
             post.save().then(post => {
                 res.json(post);
-                socket.io.of("/posts/comment").emit('commentPost', post);
+                socketClient.emit('commentPost', post);
+                socketClient.broadcast.emit('commentPost', post);
             })
                 .catch(err => res.status(500).json(err));
         })
@@ -231,3 +228,4 @@ exports.deletePost = deletePost;
 exports.likePost = likePost;
 exports.unlikePost = unlikePost;
 exports.comment = comment;
+exports.initSocketInPosts = initSocketInPosts;

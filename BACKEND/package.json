@@ -22,7 +22,7 @@
     "socket.io": "^3.1.0",
     "uuidv4": "^6.2.3",
     "validator": "^13.1.17",
-    "validatorjs": "^3.19.2",
+    "validatorjs": "^3.22.1",
     "ws": "^7.4.2"
   },
   "devDependencies": {

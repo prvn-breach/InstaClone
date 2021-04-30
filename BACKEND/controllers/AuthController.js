@@ -7,6 +7,13 @@ const isEmpty = require('../validation/is-empty');
 
 // Load Models
 const User = require('../models/User');
+const UsersStatus = require('../models/UsersStatus');
+
+let socketClient;
+
+const initSocketInAuth = (client) => {
+    socketClient = client;
+}
 
 const register = (req, res) => {
     const validationRules = {
@@ -15,30 +22,25 @@ const register = (req, res) => {
         'username': 'required',
         'password': 'required|confirmed|min:6'
     }
-    
-    let errors = {};
-    validation(req.body, validationRules, {}, (err, status) => {
-        if(!status) {
-            for (const [key, value] of Object.entries(err.errors)) {
-                errors[key] = value[0]
-            }
-            return res.status(422).json(errors);
-        }
-    })
+
+    let errors = validation(req.body, validationRules, {});
+    if (Object.keys(errors).length > 0) {
+        return res.status(422).json(errors);
+    }
 
     const { name, email, username, password } = req.body;
 
-    User.findOne({ $or: [{name},{email}] })
+    User.findOne({ $or: [{ name }, { email }] })
         .then(user => {
-            if(!isEmpty(user)) {
+            if (!isEmpty(user)) {
                 // Check username and email already exists
-                if(username == user.username && email==user.email){
+                if (username == user.username && email == user.email) {
                     errors['username'] = 'Username should be unique.';
                     errors['email'] = 'Email already exists.';
                 } else {
-                    if(username == user.username) {
+                    if (username == user.username) {
                         errors['username'] = 'Username should be unique.';
-                    } else if(email==user.email) {
+                    } else if (email == user.email) {
                         errors['email'] = 'Email already exists.';
                     }
                 }
@@ -53,67 +55,63 @@ const register = (req, res) => {
                             .then((user) => res.json(user))
                             .catch((err) => res.json(err));
                     });
-                }); 
+                });
             }
         })
-        .catch(err => res.json(err))   
-};
+        .catch(err => res.json(err))
+}
 
-const login = (req, res) => {
+const login = async (req, res) => {
     const validationRules = {
         'email': 'required|email',
         'password': 'required|integer'
     }
 
-    let errors = {};
-    validation(req.body, validationRules, {}, (err, status) => {
-        if(!status) {
-            for (const [key, value] of Object.entries(err.errors)) {
-                errors[key] = value[0]
-            }
-            res
-            .status(422)
-            .json(errors);
-        }
-    })
+    let errors = validation(req.body, validationRules, {});
+    if (Object.keys(errors).length > 0) {
+        return res.status(422).json(errors);
+    }
 
     const { email, password } = req.body;
 
-    User.findOne({ email })
-        .then((user) => {
-            if(isEmpty(user)) {
-                errors['email'] = 'User not found.';
-                return res.status(422).json(errors);
-            }
+    const user = await User.findOne({ email });
 
-            // Check with hashed password
-            bcrypt.compare(password, user.password)
-                    .then((isMatch) => {
-                        if(isMatch) {
-                            const payload = {
-                                id: user._id,
-                                username: user.username,
-                                email: user.email
-                            }
+    if (isEmpty(user)) {
+        errors['email'] = 'user has not found.';
+        return res.status(422).json(errors);
+    }
 
-                            // Create token 
-                            let secret_key = process.env.SECRET_OR_KEY;
-                            jwt.sign(payload, secret_key, { expiresIn: 3600 }, (err, token)  => {
-                                return res.json({
-                                    success: true,
-                                    user: user,
-                                    token: 'Bearer ' + token
-                                })
-                            })
-                        } else {
-                            errors['password'] = 'Password was incorrect.';
-                            return res.status(422).json(errors);
-                        }
-                    })
-                    .catch((err) => res.json(err))
-        })
-        .catch((err) => res.json(err))
-};
+    // Check with hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+        errors['password'] = 'The password was incorrect.';
+        return res.status(422).json(errors);
+    }
+
+    const payload = {
+        id: user._id,
+        username: user.username,
+        email: user.email
+    }
+
+    // Remove if it is exists
+    await UsersStatus.findOneAndRemove({ user_id: payload.id });
+    
+    // Insert Data into UserStatus
+    let users_status = new UsersStatus({ socket_id: socketClient.id, user_id: payload.id, active: true });
+    await users_status.save();
+
+    // Create token 
+    let SECRET_KEY = process.env.SECRET_OR_KEY;
+    jwt.sign(payload, SECRET_KEY, { expiresIn: 3600 }, (err, token) => {
+        return res.json({
+            success: true,
+            user: user,
+            token: 'Bearer ' + token
+        });
+    });
+}
 
 const resetPassword = (req, res) => {
 
@@ -121,21 +119,14 @@ const resetPassword = (req, res) => {
         'email': 'required|email'
     }
 
-    let errors = {};
-    validation(req.body, validationRules, {}, (err, status) => {
-        if(!status) {
-            for (const [key, value] of Object.entries(err.errors)) {
-                errors[key] = value[0]
-            }
-            res
-            .status(422)
-            .json(errors);
-        }
-    })
+    let errors = validation(req.body, validationRules, {});
+    if (Object.keys(errors).length > 0) {
+        return res.status(422).json(errors);
+    }
 
     User.findOne({ email: req.body.email })
         .then((user) => {
-            if(isEmpty(user)) {
+            if (isEmpty(user)) {
                 errors['email'] = 'User Not Found';
                 return res.status(422).json(errors);
             }
@@ -148,7 +139,7 @@ const resetPassword = (req, res) => {
                     pass: process.env.PASSWORD
                 }
             });
-            
+
             // Mail Config
             const mailOptions = {
                 from: process.env.FROM,
@@ -156,10 +147,10 @@ const resetPassword = (req, res) => {
                 subject: 'Reset password',
                 html: `<a href="http://localhost:3000/change-password/${user._id}/${uuid()}">Create a New Password</a>`
             }
-        
+
             // Sending Mail
             transporter.sendMail(mailOptions, (err, info) => {
-                if(err) {
+                if (err) {
                     console.log(err);
                 } else {
                     return res.status(201).json({
@@ -177,23 +168,16 @@ const changePassword = (req, res) => {
         'password': 'required|confirmed|min:6'
     }
 
-    let errors = {};
-    validation(req.body, validationRules, {}, (err, status) => {
-        if(!status) {
-            for (const [key, value] of Object.entries(err.errors)) {
-                errors[key] = value[0]
-            }
-            res
-            .status(422)
-            .json(errors);
-        }
-    })
+    let errors = validation(req.body, validationRules, {});
+    if (Object.keys(errors).length > 0) {
+        return res.status(422).json(errors);
+    }
 
     const { password, userId, id } = req.body;
 
     User.findOne({ _id: userId })
         .then((user) => {
-            if(isEmpty(user)){
+            if (isEmpty(user)) {
                 return res.status(404).json({
                     success: false,
                     message: "User not found"
@@ -201,7 +185,7 @@ const changePassword = (req, res) => {
             }
 
             // Validate UUID
-            if(!isUuid(id)) {
+            if (!isUuid(id)) {
                 return res.status(404).json({
                     success: false,
                     message: "Invalid UUID. Please check request params"
@@ -211,7 +195,7 @@ const changePassword = (req, res) => {
             let newPassword = password;
             bcrypt.genSalt(10, (err, salt) => {
                 bcrypt.hash(newPassword, salt, (err, hash) => {
-                    if(err) throw err;
+                    if (err) throw err;
                     user.password = hash;
                     user.save()
                         .then((data) => res.status(201).json({ success: true, data: data }))
@@ -223,7 +207,22 @@ const changePassword = (req, res) => {
         .catch((err) => res.json(err))
 }
 
+const removeUserInStatusList = async (req, res) => {
+    try {
+        await UsersStatus.findOneAndRemove({ user_id: req.params.user_id });
+    } catch (err) {
+        return res.status(500).json(err);
+    }
+
+    res.status(200).json({
+        message: "Successfully removed user",
+        error: false
+    });
+}
+
+exports.initSocketInAuth = initSocketInAuth;
 exports.register = register;
 exports.login = login;
 exports.resetPassword = resetPassword;
 exports.changePassword = changePassword;
+exports.removeUserInStatusList = removeUserInStatusList;

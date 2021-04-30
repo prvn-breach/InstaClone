@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useHistory } from "react-router-dom";
+import { socket } from "../../../service/socket";
 
 import {
     Container, CssBaseline, Typography, Avatar, TextField,
@@ -48,7 +49,7 @@ const Login = () => {
     }
 
     // Get Redux Store Data
-    const {auth, errors} = useSelector(state => { return state; });
+    const { auth, errors } = useSelector(state => { return state; });
     const dispatch = useDispatch();
 
     // For Routing
@@ -61,7 +62,7 @@ const Login = () => {
     }
 
     useEffect(() => {
-        if(auth['isAuthenticated']) {
+        if (auth['isAuthenticated']) {
             // history.push('/');
             window.location.replace("/newsfeed");
         }
@@ -82,7 +83,7 @@ const Login = () => {
                         variant="outlined"
                         margin="normal"
                         fullWidth
-                        onChange={({target}) => onChange(target.name, target.value)}
+                        onChange={({ target }) => onChange(target.name, target.value)}
                         label="Email Address"
                         helperText={errors.email}
                         error={!!errors.email}
@@ -93,7 +94,7 @@ const Login = () => {
                         variant="outlined"
                         margin="normal"
                         fullWidth
-                        onChange={({target}) => onChange(target.name, target.value)}
+                        onChange={({ target }) => onChange(target.name, target.value)}
                         helperText={errors.password}
                         error={!!errors.password}
                         name="password"

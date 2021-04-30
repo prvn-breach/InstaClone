@@ -1,5 +1,5 @@
 import axios from "axios";
-// import jwt_decode from "jwt-decode";
+import jwt_decode from "jwt-decode";
 import {
     GET_ERRORS,
     SET_CURRENT_USER,
@@ -35,8 +35,9 @@ export const loginUser = (credentials) => dispatch => {
             // Set token to ls
             localStorage.setItem('jwtToken', token);
 
-            // // Decode Token
-            // const decoded = jwt_decode(token);
+            // Decode Token
+            const decoded = jwt_decode(token);
+            localStorage.setItem('instaUser', decoded['id']);
 
             // set current user
             dispatch(setCurrentUser(user));
@@ -50,13 +51,21 @@ export const loginUser = (credentials) => dispatch => {
 }
 
 // Log out user
-export const logoutUser = () => dispatch => {
+export const logoutUser = () => async dispatch => {
+    let instaUser = localStorage['instaUser'];
+    // console.log(instaUser);
+    
+    await axios.delete(`http://localhost:5000/api/user_status/${instaUser}`);
+
     // Remove Token from localStorage
     localStorage.removeItem('jwtToken');
+    localStorage.removeItem('instaUser');
     // Remove Auth Header for future requests
     setAuthToken(false);
     // Set current to {}  which will set isAuthenticated false
     dispatch(setCurrentUser({}));
+    // Redirect to login page
+    window.location.replace("/login");
 }
 
 // Forget Password

@@ -93,6 +93,7 @@ export default class Post extends Component {
                             value={this.state.comment} 
                             className="form-control border-0" 
                             placeholder="Add Comment" 
+                            onKeyPress={event => event.key === 'Enter' ? this.props.onCommentPostClicked(_id, this.state.comment) : null}
                         />
                         <IconButton 
                             onClick={() => {
