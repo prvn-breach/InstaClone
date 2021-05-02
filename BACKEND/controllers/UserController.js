@@ -22,10 +22,24 @@ const getUsersByIds = async (user_ids, fields = null) => {
     return { success: true, data: users };
 }
 
-const getAllUsers = async (req, res) => {
+const getUsersByFilter = async (req, res) => {
+    let params = req.query;
+    let filters = {};
+    if (params['id']) {
+        filters['_id'] = params['id'];
+    }
+
+    if (params['username']) {
+        filters['username'] = params['username'];
+    }
+
+    if (params['email']) {
+        filters['email'] = params['email'];
+    }
+
     let users;
     try {
-        users = await User.find({});
+        users = await User.find(filters);
     } catch (err) {
         return res.status(500).json({
             success: false,
@@ -67,15 +81,6 @@ const getUsers = async (req, res) => {
     return res.status(201).json({
         success: true,
         users: suggestions
-    })
-}
-
-const getUserById = async (req, res) => {
-    let user = await User.findById(req.params.id);
-
-    res.status(200).json({
-        success: true,
-        user: user
     })
 }
 
@@ -246,8 +251,7 @@ const onlyUnique = (value, index, self) => {
 }
 
 exports.getUsers = getUsers;
-exports.getAllUsers = getAllUsers;
-exports.getUserById = getUserById;
+exports.getUsersByFilter = getUsersByFilter;
 exports.followUser = followUser;
 exports.unFollowUser = unFollowUser;
 exports.getFollowers = getFollowers;

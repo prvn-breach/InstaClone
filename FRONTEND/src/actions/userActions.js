@@ -1,4 +1,6 @@
 import axios from "axios";
+import queryString from "query-string";
+
 import { CLEAR_USERS, GET_USERS, GET_USER, GET_SUGGESTIONS, GET_ERRORS } from "./types";
 
 export const getUsers = () => dispatch => {
@@ -15,6 +17,12 @@ export const getUsers = () => dispatch => {
                 payload: {}
             })
         )
+}
+
+export const getUsersByFilter = (filters) => dispatch => {
+    const stringified = queryString.stringify(filters);
+    axios.get(`http://localhost:5000/api/get-users-by-filter?${stringified}`)
+        .then(res => dispatch({ type: GET_USER, payload: res.data.users[0] }))
 }
 
 export const getSuggestions = () => dispatch => {
@@ -63,11 +71,4 @@ export const unfollowUser = (user_id) => dispatch => {
                 payload: err.response.data
             })
         )
-}
-
-
-export const getUserById = (user_id) => dispatch => {
-    axios.get(`http://localhost:5000/api/users/${user_id}`)
-        .then(res => dispatch({ type: GET_USER, payload: res.user }))
-        .catch(err => dispatch({ type: CLEAR_USERS, payload: {} }))
 }

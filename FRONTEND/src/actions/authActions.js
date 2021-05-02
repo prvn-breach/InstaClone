@@ -106,8 +106,8 @@ export const changePassword = (newPwd) => dispatch => {
 
 // Update Set Current User
 export const updateSetCurrentUser = (user_id) => dispatch => {
-    axios.get(`http://localhost:5000/api/users/${user_id}`)
-        .then(res => dispatch(setCurrentUser(res.data.user)))
+    axios.get(`http://localhost:5000/api/get-users-by-filter?id=${user_id}`)
+        .then(res => dispatch(setCurrentUser(res.data.users[0])))
 }
 
 

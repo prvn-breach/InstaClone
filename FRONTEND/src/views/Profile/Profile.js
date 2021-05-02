@@ -16,6 +16,10 @@ import PersonIcon from '@material-ui/icons/Person';
 import DoneIcon from '@material-ui/icons/Done';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
+
+// Actions
+import { getUsersByFilter } from "../../actions/userActions";
+
 import "./Profile.css";
 
 class Profile extends Component {
@@ -26,15 +30,15 @@ class Profile extends Component {
             sub_page: "posts"
         }
     }
-
-    // componentWillReceiveProps(nextProps) {
-    //     this.setState({ current_user: nextProps.user });
-    // }
+    
+    componentDidMount() {
+        this.props.getUsersByFilter({ username: this.props.match.params.username });
+    }
 
     render() {
         if (Object.keys(this.props.user).length == 0) {
             return (
-                <div className="h-100" style={{ padding: '20%'}}>
+                <div className="h-100" style={{ padding: '20%' }}>
                     <Spinner />
                 </div>
             );
@@ -163,11 +167,14 @@ class Profile extends Component {
 Profile.propTypes = {
     posts: PropTypes.object.isRequired,
     user: PropTypes.object.isRequired,
+    auth_user: PropTypes.object.isRequired,
+    getUsersByFilter: PropTypes.func.isRequired
 }
 
 const mapStateToProps = state => ({
     posts: state.posts,
-    user: state.auth.user,
+    user: state.users.user,
+    auth_user: state.auth.user,
 });
 
-export default connect(mapStateToProps, {})(withRouter(Profile));
+export default connect(mapStateToProps, { getUsersByFilter })(withRouter(Profile));

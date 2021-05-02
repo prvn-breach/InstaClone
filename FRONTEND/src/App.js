@@ -7,7 +7,7 @@ import jwt_decode from "jwt-decode";
 // Store
 import store from "./store";
 import setAuthToken from "./utils/setAuthToken";
-import { setCurrentUser, updateSetCurrentUser, logoutUser } from "./actions/authActions";
+import { updateSetCurrentUser, logoutUser } from "./actions/authActions";
 
 import { PUBLIC_PATHS} from "./config";
 
@@ -21,13 +21,10 @@ import ForgetPassword from './views/components/auth/ForgetPassword';
 import ChangePassword from './views/components/auth/ChangePassword';
 import Navbar from "./views/Navbar/NavBar";
 import FootNavBar from "./views/FootNavBar/FootNavBar";
-import Dashboard from "./views/components/landing/Dashboard";
-import NewsFeed from "./views/NewsFeed/NewsFeed"; //testing
-// import Profile from "./views/components/profile/Profile";
+import NewsFeed from "./views/NewsFeed/NewsFeed";
 import Profile from "./views/Profile/Profile";
 import Accounts from "./views/Accounts/Accounts";
 import ChatBox from "./views/ChatBox/ChatBox";
-// import openSocket from "socket.io-client";
 
 // Check auth token
 if (localStorage['jwtToken']) {
