@@ -71,44 +71,11 @@ const getUsers = async (req, res) => {
 }
 
 const getUserById = async (req, res) => {
-    let user = await getAuthUser(req.params.id);
-    if (!user['success']) {
-        return res.json(user);
-    }
+    let user = await User.findById(req.params.id);
 
-    res.status(201).json({
+    res.status(200).json({
         success: true,
-        user: user['data']
-    })
-}
-
-const getAuthUser = async (user_id) => {
-    let user;
-    try {
-        user = await User.findById(user_id);
-    } catch (err) {
-        return {
-            success: false,
-            message: "[getAuthUser Func] Something went wrong!"
-        };
-    }
-
-    return {
-        success: true,
-        data: user
-    };
-}
-
-const getCurrentUser = async (req, res) => {
-
-    let user = await getAuthUser(req.user._id);
-    if (!user['success']) {
-        return res.json(user);
-    }
-
-    res.status(201).json({
-        success: true,
-        user: user['data']
+        user: user
     })
 }
 
@@ -280,7 +247,6 @@ const onlyUnique = (value, index, self) => {
 
 exports.getUsers = getUsers;
 exports.getAllUsers = getAllUsers;
-exports.getCurrentUser = getCurrentUser;
 exports.getUserById = getUserById;
 exports.followUser = followUser;
 exports.unFollowUser = unFollowUser;

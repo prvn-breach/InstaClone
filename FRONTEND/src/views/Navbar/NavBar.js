@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
-import { Link } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 
 import "./NavBar.css";
 
-export default class NavBar extends Component {
+class NavBar extends Component {
     render() {
+        const { username } = this.props.user;
         return (
             <nav id="top-navbar" className="navbar navbar-expand-sm fixed-top navbar-light border-bottom bg-white">
                 <div className="container">
@@ -55,7 +56,7 @@ export default class NavBar extends Component {
                             </li>
 
                             <li className="nav-item" id="profile">
-                                <Link to="/testProfile" className="text-dark">
+                                <Link to={`/profile/${username}`} className="text-dark">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-person-circle" viewBox="0 0 16 16">
                                         <path d="M13.468 12.37C12.758 11.226 11.195 10 8 10s-4.757 1.225-5.468 2.37A6.987 6.987 0 0 0 8 15a6.987 6.987 0 0 0 5.468-2.63z" />
                                         <path fillRule="evenodd" d="M8 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
@@ -71,3 +72,5 @@ export default class NavBar extends Component {
         )
     }
 }
+
+export default withRouter(NavBar);

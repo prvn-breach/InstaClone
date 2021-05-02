@@ -4,9 +4,10 @@ const passport = require('passport');
 const upload = require('../../middleware/file-upload');
 
 // Load Controllers
-const { getPosts, getPostById, createPost, updatePost, deletePost, likePost, unlikePost, comment } = require('../../controllers/PostController');
+const { getPosts, getCurrentUserPosts, getPostById, createPost, updatePost, deletePost, likePost, unlikePost, comment } = require('../../controllers/PostController');
 
 router.get('/posts', passport.authenticate('jwt', { session: false }), getPosts);
+router.get('/posts/current-user-posts', passport.authenticate('jwt', { session: false }), getCurrentUserPosts);
 router.get('/posts/:id', passport.authenticate('jwt', { session: false }), getPostById);
 router.post('/posts', upload.single('image'), passport.authenticate('jwt', { session: false }), createPost);
 router.patch('/posts/:id', passport.authenticate('jwt', { session: false }), updatePost);

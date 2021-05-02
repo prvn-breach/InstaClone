@@ -1,8 +1,11 @@
 import React, { Component } from 'react'
-import { Link } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
 
 import ProfileTabs from "./ProfileTabs/ProfileTabs";
 import ImageUpload from "../../hooks/ImageUpload";
+import Spinner from "../Helpers/Spinner";
 
 import IconButton from '@material-ui/core/IconButton';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
@@ -15,7 +18,7 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
 import "./Profile.css";
 
-export default class Profile extends Component {
+class Profile extends Component {
 
     constructor(props) {
         super(props);
@@ -24,13 +27,25 @@ export default class Profile extends Component {
         }
     }
 
+    // componentWillReceiveProps(nextProps) {
+    //     this.setState({ current_user: nextProps.user });
+    // }
+
     render() {
+        if (Object.keys(this.props.user).length == 0) {
+            return (
+                <div className="h-100" style={{ padding: '20%'}}>
+                    <Spinner />
+                </div>
+            );
+        }
+        const { name, username, followers, following } = this.props.user;
         return (
             <div className="container" id="profile_page">
                 <div className="mt-3 pt-3" id="profile">
                     <div className="row m-0 p-5" id="profile_row_1">
                         <div className="col-4" id="profile_column_1">
-                            <ImageUpload 
+                            <ImageUpload
                                 height="160"
                                 title="Add a profile photo"
                                 className="rounded-circle ml-2 border border-light"
@@ -38,7 +53,7 @@ export default class Profile extends Component {
                         </div>
                         <div className="col-8" id="profile_column_2">
                             <div className="d-flex" id="profile_flex_1">
-                                <div className="p-2 display-4" id="name">prvn_kumars</div>
+                                <div className="p-2 display-4" id="name">{name}</div>
                                 <div className="pt-3" id="edit_icon">
                                     <Link to="/accounts/edit">
                                         <IconButton component="span"><EditOutlinedIcon /></IconButton>
@@ -47,23 +62,23 @@ export default class Profile extends Component {
                                 </div>
                                 <div className="m-0" id="additional_options">
                                     <div className="d-flex">
-                                        <button 
-                                            className="btn border mr-2" 
+                                        <button
+                                            className="btn border mr-2"
                                             size="sm"
-                                            style={{backgroundColor: 'rgba(var(--b3f,250,250,250),1)'}}
+                                            style={{ backgroundColor: 'rgba(var(--b3f,250,250,250),1)' }}
                                             id="message"
                                         >Message</button>
-                                        <button 
+                                        <button
                                             className="border mr-2 rounded"
-                                            style={{backgroundColor: 'rgba(var(--b3f,250,250,250),1)'}}
+                                            style={{ backgroundColor: 'rgba(var(--b3f,250,250,250),1)' }}
                                             id="follow_icon"
                                         >
-                                            <PersonIcon /> 
+                                            <PersonIcon />
                                             <DoneIcon />
                                         </button>
                                         <button
                                             className="border rounded"
-                                            style={{backgroundColor: 'rgba(var(--b3f,250,250,250),1)'}}
+                                            style={{ backgroundColor: 'rgba(var(--b3f,250,250,250),1)' }}
                                             id="arrow_down_icon"
                                         >
                                             <ArrowDropDownIcon />
@@ -73,11 +88,11 @@ export default class Profile extends Component {
                             </div>
                             <div className="d-flex ml-1" id="profile_flex_2">
                                 <div className="p-2"><span className="font-weight-bold mr-1">0</span>posts</div>
-                                <div className="p-2"><span className="font-weight-bold mr-1">0</span>follower</div>
-                                <div className="p-2"><span className="font-weight-bold mr-1">0</span>following</div>
+                                <div className="p-2"><span className="font-weight-bold mr-1">{followers.length}</span>followers</div>
+                                <div className="p-2"><span className="font-weight-bold mr-1">{following.length}</span>following</div>
                             </div>
                             <div className="d-flex ml-1 d-none d-lg-block" id="profile_flex_3">
-                                <div className="p-2">prvn</div>
+                                <div className="p-2">{username}</div>
                             </div>
                         </div>
                     </div>
@@ -90,11 +105,11 @@ export default class Profile extends Component {
                                 <span className="text-muted">Posts</span>
                             </li>
                             <li className="list-inline-item text-center">
-                                <span className="font-weight-bold d-block">0</span>
+                                <span className="font-weight-bold d-block">{followers.length}</span>
                                 <span className="text-muted">Follower</span>
                             </li>
                             <li className="list-inline-item text-center mr-5">
-                                <span className="font-weight-bold d-block">0</span>
+                                <span className="font-weight-bold d-block">{following.length}</span>
                                 <span className="text-muted">Following</span>
                             </li>
                         </ul>
@@ -104,32 +119,32 @@ export default class Profile extends Component {
 
                     <div className="row border-top justify-content-center align-items-center" id="profile_row_3">
                         <ul className="list-inline mt-3" style={{ fontSize: '14px', fontWeight: '450', letterSpacing: '2px' }}>
-                            <li className="list-inline-item mx-5" onClick={() => this.setState({sub_page: "posts"})}>
+                            <li className="list-inline-item mx-5" onClick={() => this.setState({ sub_page: "posts" })}>
                                 <IconButton component="span" color={this.state.sub_page === 'posts' ? "primary" : "default"}>
                                     <ViewModuleOutlinedIcon />
                                 </IconButton>
-                                <span className={"tab "+
-                                        (this.state.sub_page === 'posts' 
-                                            ? "font-weight-bold"
-                                            : "text-muted")
+                                <span className={"tab " +
+                                    (this.state.sub_page === 'posts'
+                                        ? "font-weight-bold"
+                                        : "text-muted")
                                 }>POSTS</span>
                             </li>
-                            <li className="list-inline-item mx-5" onClick={() => this.setState({sub_page: "saved"})}>
+                            <li className="list-inline-item mx-5" onClick={() => this.setState({ sub_page: "saved" })}>
                                 <IconButton component="span" color={this.state.sub_page === 'saved' ? "primary" : "default"}>
                                     <BookmarkBorderOutlinedIcon />
                                 </IconButton>
-                                <span className={"tab "+
-                                    (this.state.sub_page === 'saved' 
+                                <span className={"tab " +
+                                    (this.state.sub_page === 'saved'
                                         ? "font-weight-bold"
                                         : "text-muted")
                                 }>SAVED</span>
                             </li>
-                            <li className="list-inline-item mx-5" onClick={() => this.setState({sub_page: "tagged"})}>
+                            <li className="list-inline-item mx-5" onClick={() => this.setState({ sub_page: "tagged" })}>
                                 <IconButton component="span" color={this.state.sub_page === 'tagged' ? "primary" : "default"}>
                                     <LocalOfferOutlinedIcon />
                                 </IconButton>
-                                <span className={"tab "+
-                                    (this.state.sub_page === 'tagged' 
+                                <span className={"tab " +
+                                    (this.state.sub_page === 'tagged'
                                         ? "font-weight-bold"
                                         : "text-muted")
                                 }>TAGGED</span>
@@ -144,3 +159,15 @@ export default class Profile extends Component {
         )
     }
 }
+
+Profile.propTypes = {
+    posts: PropTypes.object.isRequired,
+    user: PropTypes.object.isRequired,
+}
+
+const mapStateToProps = state => ({
+    posts: state.posts,
+    user: state.auth.user,
+});
+
+export default connect(mapStateToProps, {})(withRouter(Profile));

@@ -46,6 +46,16 @@ const getPosts = async (req, res) => {
     return res.json(all_posts);
 }
 
+const getCurrentUserPosts = async (req, res) => {
+    let current_user_posts;
+    try {
+        current_user_posts = await Post.find({ 'user': req.user._id }).sort({ date: -1 });
+    } catch (error) {
+        return res.status(500).json({ success: false, error: "[getPosts Func] Something Went Wrong by Getting Current User Posts!" });
+    }
+    return res.json(current_user_posts);
+}
+
 const getPostById = (req, res) => {
     Post.findById(req.params.id)
         .then(post => res.json(post))
@@ -221,6 +231,7 @@ const comment = (req, res) => {
 }
 
 exports.getPosts = getPosts;
+exports.getCurrentUserPosts = getCurrentUserPosts;
 exports.getPostById = getPostById;
 exports.createPost = createPost;
 exports.updatePost = updatePost;

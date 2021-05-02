@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Redirect, Switch } from "react-router-dom";
 import { Provider } from "react-redux";
 import jwt_decode from "jwt-decode";
+// import 'bootstrap/dist/css/bootstrap.css';
 
 // Store
 import store from "./store";
@@ -22,8 +23,8 @@ import Navbar from "./views/Navbar/NavBar";
 import FootNavBar from "./views/FootNavBar/FootNavBar";
 import Dashboard from "./views/components/landing/Dashboard";
 import NewsFeed from "./views/NewsFeed/NewsFeed"; //testing
-import Profile from "./views/components/profile/Profile";
-import NewProfile from "./views/Profile/Profile";
+// import Profile from "./views/components/profile/Profile";
+import Profile from "./views/Profile/Profile";
 import Accounts from "./views/Accounts/Accounts";
 import ChatBox from "./views/ChatBox/ChatBox";
 // import openSocket from "socket.io-client";
@@ -36,7 +37,7 @@ if (localStorage['jwtToken']) {
 	const decoded = jwt_decode(localStorage['jwtToken']);
 	
 	// SET CURRENT USER
-	store.dispatch(updateSetCurrentUser());
+	store.dispatch(updateSetCurrentUser(decoded['id']));
 	// Get Auth User Event
 	// let getAuthUser = openSocket("http://localhost:5000/user/getAuthUsers");
 	// getAuthUser.on('getAuthUsers', (data) => {
@@ -69,7 +70,7 @@ const App = () => {
 				<Router>
 					{
 						localStorage['jwtToken']
-							? (<Navbar />)
+							? (<Navbar user={jwt_decode(localStorage['jwtToken'])} />)
 							: ""
 					}
 					<div className="">
@@ -84,7 +85,7 @@ const App = () => {
 							{/* PAGES */}
 							{/* <Route exact path="/" component={Dashboard} /> */}
 							<Route exact path="/newsfeed" component={NewsFeed} />
-							<Route exact path="/testprofile" component={NewProfile} />
+							{/* <Route exact path="/testprofile" component={NewProfile} /> */}
 							<Route exact path="/profile/:username" component={Profile} />
 							<Route exact path="/accounts/:tab" component={Accounts} />
 							<Route exact path="/inbox" component={ChatBox} />

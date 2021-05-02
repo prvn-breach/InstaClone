@@ -17,8 +17,7 @@ const getConversation = async (req, res) => {
         let user_conversation = await UserConversation.findOne({ user_id: sender_id });
         return JsonApiResponse.success(res, 'Successfully fetched user conversation.', user_conversation);
     } catch (error) {
-        let error_message = error.getMessage() + ' in ' + error.getFile() + ', line no ' + error.getLine();
-        return JsonApiResponse.error(res, error_message, 500);
+        return JsonApiResponse.error(res, error.message, 500);
     }
 }
 
@@ -29,14 +28,14 @@ const addUserToChat = async (req, res) => {
 
     let errors = validation(req.body, validationRules, {});
     if (Object.keys(errors).length > 0) {
-        return JsonApiResponse.error(res, 'invalid request data', 422, errors);
+        return JsonApiResponse.error(res, 'Invalid request data', 422, errors);
     }
 
     const sender_id = req.user._id;
     const receiver_id = req.body.user_id;
 
     if (sender_id.toString() === receiver_id) {
-        return JsonApiResponse.error(res, 'you are not able to add current user to chat', 422);
+        return JsonApiResponse.error(res, 'You are not able to add current user to chat', 422);
     }
 
     let receiver;
@@ -44,7 +43,7 @@ const addUserToChat = async (req, res) => {
     try {
         receiver = await User.findById(receiver_id);
         if (!receiver) {
-            return JsonApiResponse.error(res, 'recieved user was not found', 404);
+            return JsonApiResponse.error(res, 'Reciever was not found', 404);
         }
     } catch (error) {
         return JsonApiResponse.error(res, error.message, 500);
