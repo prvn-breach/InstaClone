@@ -36,14 +36,14 @@ class Profile extends Component {
     }
 
     render() {
-        if (Object.keys(this.props.user).length == 0) {
+        if (this.props.users.loading) {
             return (
                 <div className="h-100" style={{ padding: '20%' }}>
                     <Spinner />
                 </div>
             );
         }
-        const { name, username, followers, following } = this.props.user;
+        const { name, username, followers, following } = this.props.users.user;
         return (
             <div className="container" id="profile_page">
                 <div className="mt-3 pt-3" id="profile">
@@ -166,14 +166,14 @@ class Profile extends Component {
 
 Profile.propTypes = {
     posts: PropTypes.object.isRequired,
-    user: PropTypes.object.isRequired,
+    users: PropTypes.object.isRequired,
     auth_user: PropTypes.object.isRequired,
     getUsersByFilter: PropTypes.func.isRequired
 }
 
 const mapStateToProps = state => ({
     posts: state.posts,
-    user: state.users.user,
+    users: state.users,
     auth_user: state.auth.user,
 });
 

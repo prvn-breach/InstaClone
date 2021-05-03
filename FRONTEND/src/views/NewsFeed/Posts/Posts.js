@@ -31,9 +31,11 @@ export default class Posts extends Component {
     render() {
         
         if (this.props.posts.loading) {
-            return (
-                <PostLoadingWave />
-            );
+            let post_loading_waves = [];
+            for (let i = 0; i < 3; i++) {
+                post_loading_waves[i] = <PostLoadingWave key={i} />
+            }
+            return post_loading_waves;
         }
 
         // add is_post_liked_by_current_user in post array

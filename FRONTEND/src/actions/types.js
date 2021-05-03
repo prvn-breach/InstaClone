@@ -9,5 +9,8 @@ export const CLEAR_POSTS = 'CLEAR_POSTS';
 
 export const GET_USERS = 'GET_USERS';
 export const GET_USER = 'GET_USER';
+export const LOADING = 'LOADING';
+
+
 export const CLEAR_USERS = 'CLEAR_USERS';
 export const GET_SUGGESTIONS = 'GET_SUGGESTIONS';

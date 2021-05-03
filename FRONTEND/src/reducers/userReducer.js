@@ -1,4 +1,4 @@
-import { GET_USERS, GET_SUGGESTIONS, GET_USER } from "../actions/types";
+import { GET_USERS, GET_SUGGESTIONS, GET_USER, LOADING } from "../actions/types";
 
 const initialState = {
     loading: true,
@@ -9,11 +9,16 @@ const initialState = {
 
 export default function (state=initialState, action) {
     switch (action.type) {
+        case LOADING:
+            return {
+                ...state,
+                loading: true,
+            }
         case GET_USER:
             return {
                 ...state,
+                user: action.payload,
                 loading: false,
-                user: action.payload
             }
         case GET_USERS:
             return {
