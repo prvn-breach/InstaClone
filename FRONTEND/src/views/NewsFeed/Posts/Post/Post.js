@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import { setFileUrl } from "../../../../helpers";
+import { Link } from "react-router-dom";
 
+import { setFileUrl } from "../../../../helpers";
 import Comment from "./Comment/Comment";
 
 import IconButton from '@material-ui/core/IconButton';
@@ -23,7 +24,7 @@ export default class Post extends Component {
     }
 
     render() {
-        const { _id, name, image, is_post_liked_by_current_user, likes, comments } = this.props;
+        const { _id, name, username, image, is_post_liked_by_current_user, likes, comments } = this.props;
         const imageLink = setFileUrl(image);
 
         let size = 4;
@@ -40,7 +41,7 @@ export default class Post extends Component {
                             className="rounded-circle border"
                             id="user_image"
                         />
-                        <a href="#" className="ml-3 text-dark">{name}</a>
+                        <Link to={`/profile/${username}`} className="ml-3 text-dark">{name}</Link>
 
                         <IconButton onClick={() => this.props.onPostMenuClicked()} color="default" component="span" className="float-right p-0">
                             <MoreVertIcon />

@@ -74,11 +74,12 @@ const createPost = async (req, res) => {
 
     const { text } = req.body;
 
-    const { id, name } = req.user;
+    const { id, name, username } = req.user;
 
     const newPost = new Post({
         text,
-        name: name,
+        name,
+        username,
         image: req.file.path,
         user: id
     })

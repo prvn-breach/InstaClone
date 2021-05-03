@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Link } from "react-router-dom";
 
 import "./SuggestionBox.css"
 
@@ -25,7 +26,7 @@ export default class SuggestionBox extends Component {
                             alt=""
                         />
                     </div>
-                    <div className="text-center font-weight-bold mt-3">{username}</div>
+                    <Link to={`/profile/${username}`} className="d-block text-dark text-center font-weight-bold mt-3">{username}</Link>
                     <div className="pt-4">
                         {!this.state.followed ? (<button className="btn btn-primary w-100 py-0 font-weight-bold" onClick={() => { this.setState({ followed: true }); this.props.onfollowTheUser(_id); }}>Follow</button>) : (
                             <button className="btn btn-light w-100 py-0 font-weight-bold">Followed</button>

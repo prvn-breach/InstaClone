@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Link } from 'react-router-dom';
 
 export default class Suggestion extends Component {
 
@@ -19,7 +20,7 @@ export default class Suggestion extends Component {
                             className="rounded-circle border"
                             style={{ width: '39px' }}
                         />
-                        <a href="#" className="nav-link d-inline text-dark">{username}</a>
+                        <Link to={`/profile/${username}`} className="nav-link d-inline text-dark">{username}</Link>
                     </div>
                     <div>
                         {!this.isFollowed ? (<a href="##" className="nav-link d-inline" onClick={() => this.isFollowed = true}>Follow</a>) : (

@@ -93,7 +93,7 @@ const App = () => {
 					</div>
 					{
 						localStorage['jwtToken']
-							? (<FootNavBar />)
+							? (<FootNavBar user={jwt_decode(localStorage['jwtToken'])} />)
 							: ""
 					}
 				</Router>

@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Link } from "react-router-dom";
 
 import Suggestion from "./Suggestion/Suggestion";
 
@@ -25,7 +26,7 @@ export default class Suggestions extends Component {
                                 className="rounded-circle border"
                                 style={{ width: '60px' }}
                             />
-                            <a href="#" className="nav-link d-inline text-dark">prvn_kumar</a>
+                            <Link to={`/profile/${this.props.current_user.username}`} className="nav-link d-inline text-dark">{this.props.current_user.username}</Link>
                         </div>
                         <div>
                             <a href="#" className="nav-link d-inline">switch</a>

@@ -191,7 +191,7 @@ class NewsFeed extends Component {
 
                     {/* RIGHT SIDE SUGGESTIONS */}
                     <div className="col d-none d-lg-block p-5" id="profile_column">
-                        <Suggestions suggestions={this.props.suggestions} />
+                        <Suggestions suggestions={this.props.suggestions} current_user={this.props.auth.user}/>
                     </div>
                 </div>
 
