@@ -21,6 +21,12 @@ export default class Post extends Component {
         this.state = {
             comment: ''
         }
+        this.onCommentPostClicked = this.onCommentPostClicked.bind(this);
+    }
+
+    onCommentPostClicked(id) {
+        this.props.onCommentPostClicked(id, this.state.comment);
+        this.setState({ comment: '' });
     }
 
     render() {
@@ -94,13 +100,14 @@ export default class Post extends Component {
                             value={this.state.comment} 
                             className="form-control border-0" 
                             placeholder="Add Comment" 
-                            onKeyPress={event => event.key === 'Enter' ? this.props.onCommentPostClicked(_id, this.state.comment) : null}
+                            onKeyPress={
+                                event => event.key === 'Enter' 
+                                    ? this.onCommentPostClicked(_id)
+                                    : null
+                            }
                         />
                         <IconButton 
-                            onClick={() => {
-                                this.props.onCommentPostClicked(_id, this.state.comment);
-                                this.setState({ comment: '' });
-                            }} 
+                            onClick={() => this.onCommentPostClicked(_id)}
                             disabled={!this.state.comment.trim()} 
                             color="default" 
                             component="span" 

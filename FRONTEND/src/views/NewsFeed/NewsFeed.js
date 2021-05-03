@@ -179,7 +179,7 @@ class NewsFeed extends Component {
                     <div className="col-lg-7 p-0" id="posts_column">
                         <Posts
                             current_user={this.props.auth.user}
-                            posts={this.postsProps.posts}
+                            posts={this.postsProps}
                             postMenuClickedHandler={(post) => this.postMenuClickedHandler(post)}
                             commentMenuClickedHandler={(post) => this.commentMenuClickedHandler(post)}
                             likePostHandler={(post_id) => this.likeThePost(post_id)}
