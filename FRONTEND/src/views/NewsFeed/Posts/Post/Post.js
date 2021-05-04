@@ -86,7 +86,9 @@ export default class Post extends Component {
                     </div>
 
                     {/* LIKES */}
-                    <div className="card-text pl-3" style={{ fontWeight: 500, fontSize: '15px' }}>{likes.length} likes</div>
+                    <div className="card-text pl-3" style={{ fontWeight: 500, fontSize: '15px' }}>
+                        {likes.length} likes {comments.length} comments
+                    </div>
 
                     {/* COMMENTS */}
                     <div id="comments">

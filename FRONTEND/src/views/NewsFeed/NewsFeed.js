@@ -25,18 +25,18 @@ class NewsFeed extends Component {
 
         this.state = {
             openPostMenuModal: false,
-            openCommentModal: false 
+            openCommentModal: false
         }
 
         this.postsComponent = React.createRef();
-        this.postMenuModal = React.createRef();
-        this.commentModal = React.createRef();
+        this.modalRef = React.createRef();
     }
 
     componentDidMount() {
         this.props.getPosts();
         this.props.getSuggestions();
         this.onSocketOpen();
+        window.scrollTo(0,0);
     }
 
     componentWillUnmount() {
@@ -52,7 +52,7 @@ class NewsFeed extends Component {
     }
 
     componentWillReceiveProps() {
-        if (this.props.errors['error']) { 
+        if (this.props.errors['error']) {
             // let error_message= this.props.errors['message'];
             if (window.confirm("There is something problem in sockets please refresh this page to resolve this issue...")) {
                 console.log("PAGE REFRESHED...");
@@ -72,7 +72,7 @@ class NewsFeed extends Component {
         socket.on('followUser', this.onFollowUserSocketEventHanlder);
         socket.on('unfollowUser', this.onUnfollowUserSocketEventHanlder);
     }
-    
+
     onGetPostsSocketEventHanlder = () => {
         this.postsComponent.current.forceUpdate();
     }
@@ -100,7 +100,7 @@ class NewsFeed extends Component {
     onUpdatePostSocketEventHanlder = (post) => {
         this.updatePost(post);
     }
-    
+
     onLikePostSocketEventHanlder = (post) => {
         this.updatePost(post);
     }
@@ -116,7 +116,7 @@ class NewsFeed extends Component {
     onFollowUserSocketEventHanlder = (res) => {
         let auth_user = this.props.auth.user;
         if (
-            auth_user['_id'] === res['current_user']['_id'] || 
+            auth_user['_id'] === res['current_user']['_id'] ||
             auth_user['_id'] === res['followed_user']['_id']
         ) {
             this.props.getSuggestions();
@@ -126,7 +126,7 @@ class NewsFeed extends Component {
     onUnfollowUserSocketEventHanlder = (res) => {
         let auth_user = this.props.auth.user;
         if (
-            auth_user['_id'] === res['current_user']['_id'] || 
+            auth_user['_id'] === res['current_user']['_id'] ||
             auth_user['_id'] === res['unfollowed_user']['_id']
         ) {
             this.props.getSuggestions();
@@ -141,12 +141,14 @@ class NewsFeed extends Component {
 
     postMenuClickedHandler(post) {
         this.setState({ openPostMenuModal: true, openCommentModal: false });
-        setTimeout(() => this.postMenuModal.current.showModal(post, this.props.auth.user._id), 100);
+        setTimeout(() => {
+            this.modalRef.current.showModal(post, this.props.auth.user._id)
+        }, 100);
     }
 
     commentMenuClickedHandler(post) {
         this.setState({ openPostMenuModal: false, openCommentModal: true });
-        setTimeout(() => this.commentModal.current.showModal(post, this.props.auth.user._id), 100);
+        setTimeout(() => this.modalRef.current.showModal(post, this.props.auth.user._id), 100);
     }
 
     deletePost(post_id) {
@@ -191,7 +193,7 @@ class NewsFeed extends Component {
 
                     {/* RIGHT SIDE SUGGESTIONS */}
                     <div className="col d-none d-lg-block p-5" id="profile_column">
-                        <Suggestions suggestions={this.props.suggestions} current_user={this.props.auth.user}/>
+                        <Suggestions suggestions={this.props.suggestions} current_user={this.props.auth.user} />
                     </div>
                 </div>
 
@@ -200,22 +202,45 @@ class NewsFeed extends Component {
                     <SuggestionBoxes suggestions={this.props.suggestions} onfollowUser={(user_id) => this.followTheUser(user_id)} />
                 </div>
 
-
-                {/* POST MENU MODAL */}
-                {this.state.openPostMenuModal && 
-                    <PostMenuModal 
-                        ref={this.postMenuModal} 
-                        deletePostHandler={(post_id) => this.deletePost(post_id)} 
-                    />
-                }
-
-                {/* COMMENT MODAL */}
-                {this.state.openCommentModal && 
-                    <CommentModal ref={this.commentModal} />
-                }
+                <Modal
+                    modalRef={this.modalRef}
+                    showPostMenuModal={this.state.openPostMenuModal}
+                    showCommentModal={this.state.openCommentModal}
+                    onDeletePostHandler={(post_id) => this.deletePost(post_id)}
+                />
             </div>
         )
     }
+}
+
+const PostMenuModel = ({ postModalRef, onDeletePostHandler }) => {
+    return (
+        <PostMenuModal
+            ref={postModalRef}
+            deletePostHandler={(post_id) => onDeletePostHandler(post_id)}
+        />
+    )
+}
+
+const CommentsModal = ({ commentModalRef }) => {
+    return (
+        <CommentModal ref={commentModalRef} />
+    )
+}
+
+const Modal = ({ modalRef, showPostMenuModal, showCommentModal, onDeletePostHandler }) => {
+    if (showPostMenuModal) {
+        return (
+            <PostMenuModel postModalRef={modalRef} onDeletePostHandler={(post_id) => onDeletePostHandler(post_id)} />
+        )
+    }
+
+    if (showCommentModal) {
+        return (
+            <CommentsModal commentModalRef={modalRef} />
+        )
+    }
+    return null;
 }
 
 NewsFeed.propTypes = {

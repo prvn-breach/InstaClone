@@ -29,13 +29,17 @@ export default class Posts extends Component {
     }
 
     render() {
-        
         if (this.props.posts.loading) {
             let post_loading_waves = [];
             for (let i = 0; i < 3; i++) {
                 post_loading_waves[i] = <PostLoadingWave key={i} />
             }
-            return post_loading_waves;
+            return (
+                <div>
+                    <Stories />
+                    {post_loading_waves}
+                </div>
+            );
         }
 
         // add is_post_liked_by_current_user in post array
@@ -46,14 +50,14 @@ export default class Posts extends Component {
         }
 
         // Append data to Post Component
-        let posts = this.props.posts.posts.map((post, i) => <Post 
-            key={i} 
-            onPostMenuClicked={() => this.postMenuClick(post)} 
+        let posts = this.props.posts.posts.map((post, i) => <Post
+            key={i}
+            onPostMenuClicked={() => this.postMenuClick(post)}
             onCommentMenuClicked={() => this.commentMenuClick(post)}
             onLikePostClicked={(post_id) => this.likePostClicked(post_id)}
             onUnLikePostClicked={(post_id) => this.unLikePostClicked(post_id)}
             onCommentPostClicked={(post_id, comment) => this.commentPostClicked(post_id, comment)}
-            {...post} 
+            {...post}
         />);
 
         return (

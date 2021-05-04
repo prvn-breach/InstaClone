@@ -12,6 +12,10 @@
     border-color: transparent
 } */
 
+.modal {
+    overflow-y: hidden !important;
+}
+
 .modal.animate {
     opacity: 0;
 }

@@ -110,7 +110,7 @@ class Profile extends Component {
                             </li>
                             <li className="list-inline-item text-center">
                                 <span className="font-weight-bold d-block">{followers.length}</span>
-                                <span className="text-muted">Follower</span>
+                                <span className="text-muted">Followers</span>
                             </li>
                             <li className="list-inline-item text-center mr-5">
                                 <span className="font-weight-bold d-block">{following.length}</span>
