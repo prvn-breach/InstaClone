@@ -6,8 +6,6 @@ import "./Stories.css";
 
 export default class Stories extends Component {
     render() {
-
-        // const list_stories = [1,2,3,4,5,6,7,8,9,10];
         const list_stories = [
             { id: 1, username: "prvn_king" },
             { id: 2, username: "peter_parker" },
