@@ -13,29 +13,29 @@ export default (state = initialState, action) => {
         case ADD_USER_TO_CHAT:
             return {
                 conversation: {
-                    ...conversation,
-                    conversation_users: conversation_users.push(action.payload)
+                    ...state.conversation,
+                    conversation_users: state.conversation_users.push(action.payload)
                 }
             }
         case REMOVE_USER_FROM_CHAT:
             return {
                 conversation: {
-                    ...conversation,
-                    conversation_users: conversation_users.filter(user => user.receiver_id != action.payload)
+                    ...state.conversation,
+                    conversation_users: state.conversation_users.filter(user => user.receiver_id != action.payload)
                 }
             };
         case SENT_MESSAGE:
             return {
                 conversation: {
-                    ...conversation,
-                    messages: messages.push(action.payload)
+                    ...state.conversation,
+                    messages: state.messages.push(action.payload)
                 }
             }
         case DELETE_MESSAGE:
             return {
                 conversation: {
-                    ...conversation,
-                    messages: messages.filter(message => message._id!=action.payload)
+                    ...state.conversation,
+                    messages: state.messages.filter(message => message._id!=action.payload)
                 }
             };
         default:
