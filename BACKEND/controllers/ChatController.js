@@ -82,7 +82,7 @@ const addUserToChat = async (req, res) => {
         return JsonApiResponse.error(res, error.message, 500);
     }
 
-    return JsonApiResponse.success(res, 'Successfully Created User Conversation.', user_conversation);
+    return JsonApiResponse.success(res, 'Successfully Created User Conversation.', conversation_user_data);
 }
 
 const removeUserFromChat = async (req, res) => {
@@ -103,7 +103,7 @@ const removeUserFromChat = async (req, res) => {
         user_conversation.conversation_users = user_conversation.conversation_users.filter(conversation_user => conversation_user.receiver_id.toString() != receiver_id);
         user_conversation.messages = user_conversation.messages.filter(message => message.receiver_id.toString() != receiver_id);
         await user_conversation.save();
-        return JsonApiResponse.success(res, "Successfully removed user from chat list", user_conversation);
+        return JsonApiResponse.success(res, "Successfully removed user from chat list", receiver_id);
     } catch (error) {
         return JsonApiResponse.error(res, error.message, 500);
     }
@@ -177,10 +177,7 @@ const sendMessage = async (req, res) => {
         }
         await receiver_conversation.save();
 
-        return JsonApiResponse.success(res, "Successfully send message to receiver", {
-            sender_conversation,
-            receiver_conversation,
-        });
+        return JsonApiResponse.success(res, "Successfully send message to receiver", message_data);
     } catch (error) {
         return JsonApiResponse.error(res, error.message, 500);
     }
@@ -203,7 +200,7 @@ const deleteMessage = async (req, res) => {
         let user_conversation = await UserConversation.findOne({ user_id: sender_id });
         user_conversation.messages = await user_conversation.messages.filter(message => message['_id'].toString() != message_id);
         await user_conversation.save();
-        return JsonApiResponse.success(res, "Successfully message deleted", user_conversation);
+        return JsonApiResponse.success(res, "Successfully message deleted", message_id);
     } catch (error) {
         return JsonApiResponse.error(res, error.message, 500);
     }

@@ -4,11 +4,13 @@ import errorReducer from "./errorReducer";
 import resetReducer from "./resetReducer";
 import postReducer from "./postReducer";
 import userReducer from "./userReducer";
+import chatReducer from "./chatReducer";
 
 export default combineReducers({
     auth: authReducer,
     errors: errorReducer,
     reset: resetReducer,
     posts: postReducer,
-    users: userReducer
+    users: userReducer,
+    chats: chatReducer
 });
