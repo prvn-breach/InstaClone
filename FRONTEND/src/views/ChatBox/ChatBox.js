@@ -1,4 +1,9 @@
 import React, { Component } from 'react'
+import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
+import PropTypes from "prop-types";
+
+import { getUserConversation, sentMessage } from "../../actions/chatActions";
 
 import Conversations from "./Conversations/Conversations";
 import Messages from "./Messages/Messages";
@@ -17,19 +22,20 @@ class ChatBox extends Component {
             sticker_clicked: false,
             show_conversations: false,
             current_user: { id: 1, username: "prvn_king", is_active: true, messages: [{ id: 1, text: "Hi Praveen", user_id: "5f6abb9a7625083282a9c4ddd", time: "Sunday 7:02pm", is_time_showing: true }] },
-            conversations: [
-                { id: 1, username: "prvn_king", is_active: true, messages: [{ id: 1, text: "Hi Praveen", user_id: "5f6abb9a7625083282a9c4ddd", time: "Sunday 7:02pm", is_time_showing: true }] },
-                { id: 2, username: "elon_musk", is_active: false, messages: [{ id: 1, text: "Hi Musk", user_id: "5f6abb9a7625083282a9c483", time: "Monday 7:02pm", is_time_showing: true }] },
-                { id: 3, username: "sundar_pichai", is_active: true, messages: [{ id: 1, text: "Hi Sundar", user_id: "5f6abb934324083282a9c4d2", time: "Sunday 7:02pm", is_time_showing: true }] },
-                { id: 4, username: "mark_zuckerberg", is_active: false, messages: [{ id: 1, text: "Hi Zucker", user_id: "5f6abbedfef5083282a9c4d2", time: "Sunday 7:02pm", is_time_showing: true }] },
-                { id: 5, username: "billgates", is_active: true, messages: [{ id: 1, text: "Hi Bill", user_id: "5f6a762434nn82a9c4d2", time: "Sunday 7:02pm", is_time_showing: true }] }
-            ]
+            conversation: { conversation_users: [] }
         };
         this.onChange = this.onChange.bind(this);
-        this.onSendMessage = this.onSendMessage.bind(this);
+        this.sendMessage = this.sendMessage.bind(this);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (!nextProps.chats.loading) {
+            this.setState({ conversation: nextProps.chats.conversation });
+        }
     }
 
     componentDidMount() {
+        this.props.getUserConversation();
         this.showColumn();
         this.responseWindowResize();
         window.addEventListener('resize', this.responseWindowResize)
@@ -98,32 +104,26 @@ class ChatBox extends Component {
     }
 
     getCurrentUserMessages(id) {
-        let user_clicked = this.state.conversations.find(conversation => conversation.id === id);
-        this.setState({ current_user: user_clicked });
+        let current_user = this.state.conversation.conversation_users.find(conversation => conversation.receiver_id === id);
+        current_user['messages'] = this.state.conversation.messages.filter(message => message.receiver_id === id);
+        this.setState({ current_user });
     }
 
     onChange(e) {
         this.setState({ text: e.target.value });
     }
 
-    onSendMessage() {
-        let current_user = this.state.current_user;
-        current_user['messages'].push({
-            id: 1,
-            text: this.state.text,
-            user_id: "5f6abb9a7625083282a9c4d2",
-            time: "Sunday 7:02pm",
-            is_time_showing: false
-        });
-        this.setState({ current_user: current_user, text: "", sticker_clicked: false });
+    sendMessage(message, receiver_id) {
+        this.props.sentMessage({ user_id: receiver_id, message: message});
     }
 
     imagePicked = (event, emojiObj) => {
         event.persist();
-        this.setState({ text:  this.state.text + emojiObj.emoji });
+        this.setState({ text: this.state.text + emojiObj.emoji });
     }
 
     render() {
+        const { username } = this.props.auth.user;
         return (
             <div>
                 <div id="chatbox" className="mt-5 pt-4 container">
@@ -134,7 +134,7 @@ class ChatBox extends Component {
                                 <span></span>
 
                                 <span id="choose_accounts" className="d-flex align-items-center">
-                                    <span className="font-weight-bold mr-2">prvndp6</span>
+                                    <span className="font-weight-bold mr-2">{username}</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chevron-down" viewBox="0 0 16 16">
                                         <path fillRule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z" />
                                     </svg>
@@ -173,7 +173,7 @@ class ChatBox extends Component {
                                         <div id="online_dot"></div>
 
                                         <span className="d-flex flex-column mt-2">
-                                            <label className="font-weight-bold mb-0">{this.state.current_user.username}</label>
+                                            <label className="font-weight-bold mb-0">{this.state.current_user.receiver_name}</label>
                                             <label className="text-muted" style={{ fontSize: '11px' }}>{
                                                 this.state.current_user.is_active ? "Active Now" : "Active 23h ago"
                                             }</label>
@@ -203,7 +203,7 @@ class ChatBox extends Component {
                         <div className="col-md-4 border-right p-0 h-100" id="chatbox_col1" style={{ overflowY: "scroll" }}>
                             <div id="conversations_block">
                                 <Conversations
-                                    conversations={this.state.conversations}
+                                    conversations={this.state.conversation.conversation_users}
                                     getCurrentUser={(id) => this.getCurrentUserMessages(id)}
                                 />
                             </div>
@@ -213,7 +213,10 @@ class ChatBox extends Component {
 
                             {/* MESSAGES */}
                             <div id="messages" onClick={() => this.setState({ sticker_clicked: false })}>
-                                <Messages messages={this.state.current_user.messages} text={this.state.text} />
+                                <Messages 
+                                    messages={this.state.current_user.messages} 
+                                    text={this.state.text}
+                                />
                             </div>
 
                             {/* EmojiPicker */}
@@ -235,7 +238,7 @@ class ChatBox extends Component {
                                     className="form-control"
                                     placeholder="Message..."
                                     onChange={this.onChange}
-                                    value={this.state.text}
+                                    value={this.state.message}
                                 />
 
                                 {!this.state.text && <span>
@@ -251,7 +254,7 @@ class ChatBox extends Component {
                                     </svg>
                                 </span>}
 
-                                {this.state.text && <span className="text-primary" style={{ cursor: "pointer" }} onClick={this.onSendMessage}>Send</span>}
+                                {this.state.text && <span className="text-primary" style={{ cursor: "pointer" }} onClick={() => this.sendMessage(this.state.text, this.state.current_user.receiver_id)}>Send</span>}
                             </div>
                         </div>}
 
@@ -264,4 +267,16 @@ class ChatBox extends Component {
     }
 }
 
-export default ChatBox;
+ChatBox.propTypes = {
+    auth: PropTypes.object.isRequired,
+    chats: PropTypes.object.isRequired,
+    getUserConversation: PropTypes.func.isRequired,
+    sentMessage: PropTypes.func.isRequired
+}
+
+const mapStateToProps = state => ({
+    auth: state.auth,
+    chats: state.chats
+});
+
+export default connect(mapStateToProps, { getUserConversation, sentMessage })(withRouter(ChatBox));

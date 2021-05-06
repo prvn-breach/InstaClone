@@ -5,7 +5,7 @@
 }
 
 #chatbox #chatbox_row2 {
-    height: 510px !important;
+    height: 480px !important;
 }
 
 #chatbox #chatbox_row1 #options {
@@ -63,7 +63,7 @@
     align-items: center;
     padding: 3px 15px;
     border-radius: 100px;
-    height: 9%;
+    height: 10%;
 }
 
 #chatbox #chatbox_row2 #chatbox_col2 #message_box textarea {
@@ -100,7 +100,7 @@
 
 #chatbox #chatbox_row2 #chatbox_col2 #emoji_picker {
     position: absolute;
-    top: 24%;
+    top: 19%;
     left: 0;
 }
 

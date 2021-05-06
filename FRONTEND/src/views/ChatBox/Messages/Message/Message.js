@@ -5,11 +5,11 @@ import classnames from "classnames";
 class Message extends Component {
 
     isCurrentUser() {
-        return this.props.user_id === this.props.current_user.id;
+        return this.props.receiver_id === this.props.current_user.id;
     }
 
     render() {
-        const { img, text, time, is_time_showing } = this.props;
+        const { img, message, time, is_time_showing } = this.props;
         return (
             <div className="w-100" id="message">
 
@@ -45,7 +45,7 @@ class Message extends Component {
                         "float-right": this.isCurrentUser(),
                         "bg-white border float-left": !this.isCurrentUser()
                     })}
-                >{text}</span>
+                >{message}</span>
             </div>
         )
     }
