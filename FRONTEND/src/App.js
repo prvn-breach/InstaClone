@@ -65,37 +65,21 @@ const App = () => {
 		<div className="App">
 			<Provider store={store}>
 				<Router>
-					{
-						localStorage['jwtToken']
-							? (<Navbar user={jwt_decode(localStorage['jwtToken'])} />)
-							: ""
-					}
-					<div className="">
-						<Switch>
-							{/* AUTH */}
-							<Route exact path="/login" component={Login} />
-							<Route exact path="/" component={Login} />
-							<Route exact path="/register" component={Register} />
-							<Route exact path="/forget-password" component={ForgetPassword} />
-							<Route exact path="/change-password/:userId/:uuid" component={ChangePassword} />
+					<Navbar token={localStorage['jwtToken']} />
+					<Switch>
+						<Route exact path="/login" component={Login} />
+						<Route exact path="/" component={Login} />
+						<Route exact path="/register" component={Register} />
+						<Route exact path="/forget-password" component={ForgetPassword} />
+						<Route exact path="/change-password/:userId/:uuid" component={ChangePassword} />
+						<Route exact path="/newsfeed" component={NewsFeed} />
+						<Route exact path="/profile/:username" component={Profile} />
+						<Route exact path="/accounts/:tab" component={Accounts} />
+						<Route exact path="/inbox" component={ChatBox} />
 
-							{/* PAGES */}
-							{/* <Route exact path="/" component={Dashboard} /> */}
-							<Route exact path="/newsfeed" component={NewsFeed} />
-							{/* <Route exact path="/testprofile" component={NewProfile} /> */}
-							<Route exact path="/profile/:username" component={Profile} />
-							<Route exact path="/accounts/:tab" component={Accounts} />
-							<Route exact path="/inbox" component={ChatBox} />
-
-							{/* REDIRECTION */}
-							<Redirect to="/login" />
-						</Switch>
-					</div>
-					{
-						localStorage['jwtToken']
-							? (<FootNavBar user={jwt_decode(localStorage['jwtToken'])} />)
-							: ""
-					}
+						<Redirect to="/login" />
+					</Switch>
+					<FootNavBar token={localStorage['jwtToken']} />
 				</Router>
 			</Provider>
 		</div>

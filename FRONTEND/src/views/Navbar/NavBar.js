@@ -1,11 +1,15 @@
 import React, { Component } from 'react'
 import { Link, withRouter } from "react-router-dom";
+import jwt_decode from "jwt-decode";
 
 import "./NavBar.css";
 
 class NavBar extends Component {
     render() {
-        const { username } = this.props.user;
+        if (!this.props.token) {
+            return null;
+        }
+        const { username } = jwt_decode(this.props.token);
         return (
             <nav id="top-navbar" className="navbar navbar-expand-sm fixed-top navbar-light border-bottom bg-white">
                 <div className="container">
