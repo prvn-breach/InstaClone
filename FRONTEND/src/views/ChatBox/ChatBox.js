@@ -114,7 +114,7 @@ class ChatBox extends Component {
     }
 
     sendMessage(message, receiver_id) {
-        this.props.sentMessage({ user_id: receiver_id, message: message});
+        this.props.sentMessage({ user_id: receiver_id, message: message });
     }
 
     imagePicked = (event, emojiObj) => {
@@ -213,16 +213,17 @@ class ChatBox extends Component {
 
                             {/* MESSAGES */}
                             <div id="messages" onClick={() => this.setState({ sticker_clicked: false })}>
-                                <Messages 
-                                    messages={this.state.current_user.messages} 
+                                <Messages
+                                    messages={this.state.current_user.messages}
                                     text={this.state.text}
                                 />
                             </div>
 
                             {/* EmojiPicker */}
-                            {this.state.sticker_clicked && <div id="emoji_picker">
-                                <EmojiPicker pickImage={() => this.imagePicked} />
-                            </div>}
+                            <EmojiStickers 
+                                show={this.state.sticker_clicked} 
+                                onEmojiPicked={()=> this.imagePicked} 
+                            />
 
                             {/* MESSAGE INPUT */}
                             <div id="message_box">
@@ -259,12 +260,35 @@ class ChatBox extends Component {
                         </div>}
 
                         {/* DETAILS */}
-                        {this.state.details_clicked && <div className="col-md-8 h-100 mx-0 px-0" id="chatbox_col2"><Details /></div>}
+                        <ChatDetails show={this.state.details_clicked} />
                     </div>
                 </div>
             </div>
         )
     }
+}
+
+const ChatDetails = ({ show }) => {
+    if (!show) {
+        return null;
+    }
+
+    return (
+        <div className="col-md-8 h-100 mx-0 px-0" id="chatbox_col2">
+            <Details />
+        </div>
+    )
+}
+
+const EmojiStickers = ({ show, onEmojiPicked }) => {
+    if (!show) {
+        return null;
+    }
+    return (
+        <div id="emoji_picker">
+            <EmojiPicker pickImage={() => onEmojiPicked} />
+        </div>
+    );
 }
 
 ChatBox.propTypes = {
