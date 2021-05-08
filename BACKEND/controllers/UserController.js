@@ -3,6 +3,7 @@ const isEmpty = require('../validation/is-empty');
 
 // Load Models
 const User = require('../models/User');
+const UsersStatus = require('../models/UsersStatus');
 // const { post } = require('../routes/api/auth');
 
 let socketClient;
@@ -245,6 +246,20 @@ const getSuggestions = async (req, res) => {
     return res.status(200).json({ success: true, data: suggestions });
 }
 
+const getUsersWithStatus = async (req, res) => {
+    let users;
+    try {
+        users = await UsersStatus.find({});
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: "Something went wrong !"
+        })
+    }
+
+    return res.json(users);
+}
+
 // Unique array elements
 const onlyUnique = (value, index, self) => {
     return self.indexOf(value) === index;
@@ -257,4 +272,5 @@ exports.unFollowUser = unFollowUser;
 exports.getFollowers = getFollowers;
 exports.getFollowing = getFollowing;
 exports.getSuggestions = getSuggestions;
+exports.getUsersWithStatus = getUsersWithStatus;
 exports.initSocketInUsers = initSocketInUsers;

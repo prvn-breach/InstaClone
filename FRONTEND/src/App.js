@@ -25,6 +25,7 @@ import NewsFeed from "./views/NewsFeed/NewsFeed";
 import Profile from "./views/Profile/Profile";
 import Accounts from "./views/Accounts/Accounts";
 import ChatBox from "./views/ChatBox/ChatBox";
+import { getUsersStatuses } from './actions/userActions';
 
 // Check auth token
 if (localStorage['jwtToken']) {
@@ -35,6 +36,10 @@ if (localStorage['jwtToken']) {
 	
 	// SET CURRENT USER
 	store.dispatch(updateSetCurrentUser(decoded['id']));
+
+	// Get Users Statuses
+	store.dispatch(getUsersStatuses());
+	
 	// Get Auth User Event
 	// let getAuthUser = openSocket("http://localhost:5000/user/getAuthUsers");
 	// getAuthUser.on('getAuthUsers', (data) => {

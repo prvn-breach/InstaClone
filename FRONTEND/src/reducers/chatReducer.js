@@ -8,11 +8,11 @@ const initialState = {
 export default (state = initialState, action) => {
     switch (action.type) {
         case CHATS_LOADING:
-            return { ...state, loading: true }
+            return { ...state, loading: true };
 
         case GET_USER_CONVERSATION:
-            return { loading: false, conversation: action.payload };
-            
+            return { ...state, loading: false, conversation: action.payload };
+
         case ADD_USER_TO_CHAT:
             state.conversation.conversation_users.push(action.payload);
             return { ...state, loading: false };
@@ -26,7 +26,7 @@ export default (state = initialState, action) => {
             return { ...state, loading: false };
 
         case DELETE_MESSAGE:
-            state.conversation.messages = state.messages.filter(message => message._id!=action.payload);
+            state.conversation.messages = state.messages.filter(message => message._id != action.payload);
             return { ...state, loading: false };
 
         default:

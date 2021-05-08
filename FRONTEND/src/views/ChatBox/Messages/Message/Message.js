@@ -5,7 +5,7 @@ import classnames from "classnames";
 class Message extends Component {
 
     isCurrentUser() {
-        return this.props.receiver_id === this.props.current_user.id;
+        return this.props.sender_id === this.props.current_user._id;
     }
 
     render() {

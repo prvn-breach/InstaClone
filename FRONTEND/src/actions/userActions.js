@@ -1,7 +1,7 @@
 import axios from "axios";
 import queryString from "query-string";
 
-import { CLEAR_USERS, GET_USERS, GET_USER, GET_SUGGESTIONS, GET_ERRORS, LOADING } from "./types";
+import { CLEAR_USERS, GET_USERS, GET_USER, GET_SUGGESTIONS, GET_ERRORS, LOADING, GET_USERS_STATUSES } from "./types";
 
 export const getUsers = () => dispatch => {
     axios.get('http://localhost:5000/api/users')
@@ -23,7 +23,12 @@ export const getUsersByFilter = (filters) => dispatch => {
     dispatch({ type: LOADING });
     const stringified = queryString.stringify(filters);
     axios.get(`http://localhost:5000/api/get-users-by-filter?${stringified}`)
-        .then(res => dispatch({ type: GET_USER, payload: res.data.users[0] }))
+        .then(res => dispatch({ type: GET_USER, payload: res.data.users[0] }));
+}
+
+export const getUsersStatuses = () => async dispatch => {
+    let response = await axios.get('http://localhost:5000/api/users/users-statuses');
+    dispatch({ type: GET_USERS_STATUSES, payload: response.data });
 }
 
 export const getSuggestions = () => dispatch => {

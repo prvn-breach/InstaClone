@@ -13,10 +13,16 @@ class Conversation extends Component {
                     height="60"
                     alt=""
                 />
-                {this.props.is_active && <div id="online_dot" />}
+                {this.props.online && <div id="online_dot" />}
                 <span id="conversation_user" className="d-flex flex-column">
                     <label className="font-weight-bold mb-0">{this.props.receiver_name}</label>
-                    {this.props.is_active && <label className="text-muted" style={{ fontSize: '11px' }}>Active Now</label>}
+                    <label className="text-muted" style={{ fontSize: '11px' }}>
+                        {
+                            this.props.online 
+                                ? 'Active Now'
+                                : 'Active 23m ago'
+                        }
+                    </label>
                 </span>
             </div>
         )
