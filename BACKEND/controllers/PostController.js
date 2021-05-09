@@ -27,12 +27,13 @@ const getPosts = async (req, res) => {
 
     let user_ids = await getConnectionsUserIdsList(req.user._id);
 
-    let current_user_posts;
-    try {
-        current_user_posts = await Post.find({ 'user': req.user._id }).sort({ date: -1 });
-    } catch (error) {
-        return res.status(500).json({ success: false, error: "[getPosts Func] Something Went Wrong by Getting Current User Posts!" });
-    }
+    // let current_user_posts = [];
+    // try {
+    //     current_user_posts = await Post.find({ 'user': req.user._id }).sort({ date: -1 });
+    // } catch (error) {
+    //     return res.status(500).json({ success: false, error: "[getPosts Func] Something Went Wrong by Getting Current User Posts!" });
+    // }
+    user_ids[user_ids.length] = req.user._id;
 
     let posts;
     try {
@@ -41,9 +42,9 @@ const getPosts = async (req, res) => {
         return res.status(500).json({ success: false, error: "Something Went Wrong For Getting Posts!" });
     }
 
-    let all_posts = current_user_posts.concat(posts);
+    // let all_posts = current_user_posts.concat(posts);
     // socketClient.emit('getPosts', all_posts);
-    return res.json(all_posts);
+    return res.json(posts);
 }
 
 const getCurrentUserPosts = async (req, res) => {
@@ -214,6 +215,7 @@ const comment = (req, res) => {
             const newComment = {
                 text,
                 name: req.user.name,
+                username: req.user.username,
                 user: req.user.id
             };
 

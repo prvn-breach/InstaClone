@@ -92,8 +92,8 @@ class Profile extends Component {
                             </div>
                             <div className="d-flex ml-1" id="profile_flex_2">
                                 <div className="p-2"><span className="font-weight-bold mr-1">0</span>posts</div>
-                                <div className="p-2"><span className="font-weight-bold mr-1">{followers.length}</span>followers</div>
-                                <div className="p-2"><span className="font-weight-bold mr-1">{following.length}</span>following</div>
+                                <div className="p-2"><span className="font-weight-bold mr-1">{followers ? followers.length : 0}</span>followers</div>
+                                <div className="p-2"><span className="font-weight-bold mr-1">{following ? following.length : 0}</span>following</div>
                             </div>
                             <div className="d-flex ml-1 d-none d-lg-block" id="profile_flex_3">
                                 <div className="p-2">{username}</div>

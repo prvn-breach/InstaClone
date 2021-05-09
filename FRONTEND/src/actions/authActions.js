@@ -54,8 +54,8 @@ export const loginUser = (credentials) => dispatch => {
 export const logoutUser = () => async dispatch => {
     let instaUser = localStorage['instaUser'];
     // console.log(instaUser);
-    
-    await axios.delete(`http://localhost:5000/api/user_status/${instaUser}`);
+
+    await axios.post('http://localhost:5000/api/logout', { user_id: instaUser });
 
     // Remove Token from localStorage
     localStorage.removeItem('jwtToken');

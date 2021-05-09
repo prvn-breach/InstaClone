@@ -64,19 +64,11 @@ const addUserToChat = async (req, res) => {
     };
 
     try {
-        if (user_conversation) {
-            let already_exists = user_conversation.conversation_users.find(user => user.receiver_id.toString() === receiver_id);
-            if (already_exists) {
-                return JsonApiResponse.error(res, 'Receiver already existed in chat list', 409);
-            }
-            await user_conversation.conversation_users.push(conversation_user_data);
-        } else {
-            user_conversation = new UserConversation({
-                user_id: sender_id,
-                conversation_users: [conversation_user_data],
-                messages: []
-            });
+        let already_exists = user_conversation.conversation_users.find(user => user.receiver_id.toString() === receiver_id);
+        if (already_exists) {
+            return JsonApiResponse.error(res, 'Receiver already existed in chat list', 409);
         }
+        await user_conversation.conversation_users.push(conversation_user_data);
         await user_conversation.save();
     } catch (error) {
         return JsonApiResponse.error(res, error.message, 500);
@@ -147,34 +139,27 @@ const sendMessage = async (req, res) => {
         return JsonApiResponse.error(res, error.message, 500);
     }
 
-    let conversation_user_data = {
-        receiver_id: sender['_id'],
-        receiver_name: sender['name'],
-        receiver_username: sender['username'],
-        receiver_image: sender['image']
-    };
-
     let message_data = { 
         message: req.body.message, 
         receiver_id: receiver['_id'], 
         sender_id: sender['_id']
     };
 
-
     try {
         let sender_conversation = await UserConversation.findOne({ user_id: sender_id });
-        let receiver_conversation = await UserConversation.findOne({ user_id: receiver_id });
         await sender_conversation.messages.push(message_data);
         await sender_conversation.save();
-        if (isEmpty(receiver_conversation)) {
-            receiver_conversation = new UserConversation({
-                user_id: receiver_id,
-                conversation_users: [conversation_user_data],
-                messages: [message_data]
+
+        let receiver_conversation = await UserConversation.findOne({ user_id: receiver_id });
+        let sender_conversation_data = receiver_conversation.conversation_users.find(user => user.receiver_id.toString() === sender_id.toString());
+        if (isEmpty(sender_conversation_data)) {
+            await receiver_conversation.conversation_users.push({
+                receiver_id: sender['_id'],
+                receiver_name: sender['name'],
+                receiver_username: sender['username']
             });
-        } else {
-            await receiver_conversation.messages.push(message_data);
         }
+        await receiver_conversation.messages.push(message_data);
         await receiver_conversation.save();
 
         return JsonApiResponse.success(res, "Successfully send message to receiver", message_data);

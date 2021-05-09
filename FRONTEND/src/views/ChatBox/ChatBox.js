@@ -140,6 +140,14 @@ class ChatBox extends Component {
         this.setState({ text: this.state.text + emojiObj.emoji });
     }
 
+    userActive() {
+        let user = this.props.users_statuses.find(user => user.user_id === this.state.current_user.receiver_id);
+        if (user) {
+            return user['active'];
+        }
+        return false;
+    }
+
     render() {
         const { username } = this.props.auth.user;
         return (
@@ -188,16 +196,12 @@ class ChatBox extends Component {
                                             alt=""
                                         />
 
-                                        <OnlineDot show={
-                                            this.props.users_statuses.find(user => user.user_id === this.state.current_user.receiver_id)
-                                            ? true : false
-                                        } />
+                                        <OnlineDot show={this.userActive()} />
 
                                         <span className="d-flex flex-column mt-2">
                                             <label className="font-weight-bold mb-0">{this.state.current_user.receiver_name}</label>
                                             <label className="text-muted" style={{ fontSize: '11px' }}>{
-                                                this.props.users_statuses.find(user => user.user_id === this.state.current_user.receiver_id)
-                                                     ? "Active Now" : "Active 23h ago"
+                                                this.userActive() ? "Active Now" : "Active 23h ago"
                                             }</label>
                                         </span>
                                     </div>)

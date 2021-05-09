@@ -12,7 +12,7 @@ export default function (state=initialState, action) {
         case GET_POSTS:
             return {
                 ...state,
-                loading: isEmpty(action.payload),
+                loading: false,
                 posts: action.payload
             }
 

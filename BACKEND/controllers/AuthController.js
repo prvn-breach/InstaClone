@@ -8,6 +8,7 @@ const isEmpty = require('../validation/is-empty');
 // Load Models
 const User = require('../models/User');
 const UsersStatus = require('../models/UsersStatus');
+const UserConversation = require('../models/UserConversation');
 
 let socketClient;
 
@@ -15,7 +16,7 @@ const initSocketInAuth = (client) => {
     socketClient = client;
 }
 
-const register = (req, res) => {
+const register = async (req, res) => {
     const validationRules = {
         'name': 'required|string|min:2',
         'email': 'required|email',
@@ -30,35 +31,43 @@ const register = (req, res) => {
 
     const { name, email, username, password } = req.body;
 
-    User.findOne({ $or: [{ name }, { email }] })
-        .then(user => {
-            if (!isEmpty(user)) {
-                // Check username and email already exists
-                if (username == user.username && email == user.email) {
-                    errors['username'] = 'Username should be unique.';
-                    errors['email'] = 'Email already exists.';
-                } else {
-                    if (username == user.username) {
-                        errors['username'] = 'Username should be unique.';
-                    } else if (email == user.email) {
-                        errors['email'] = 'Email already exists.';
-                    }
-                }
-                return res.status(422).json(errors);
-            } else {
-                let newUser = new User({ name, email, username, password });
-                bcrypt.genSalt(10, (err, salt) => {
-                    bcrypt.hash(newUser.password, salt, (err, hash) => {
-                        // if(err) throw err
-                        newUser.password = hash;
-                        newUser.save()
-                            .then((user) => res.json(user))
-                            .catch((err) => res.json(err));
-                    });
-                });
+    let user = await User.findOne({ $or: [{ name }, { email }] })
+    if (!isEmpty(user)) {
+        // Check username and email already exists
+        if (username == user.username && email == user.email) {
+            errors['username'] = 'Username should be unique.';
+            errors['email'] = 'Email already exists.';
+        } else {
+            if (username == user.username) {
+                errors['username'] = 'Username should be unique.';
+            } else if (email == user.email) {
+                errors['email'] = 'Email already exists.';
             }
-        })
-        .catch(err => res.json(err))
+        }
+        return res.status(422).json(errors);
+    } else {
+        let newUser = new User({ name, email, username, password });
+        bcrypt.genSalt(10, (err, salt) => {
+            bcrypt.hash(newUser.password, salt, async (err, hash) => {
+                newUser.password = hash;
+                let created_user = await newUser.save();
+
+                // Insert Data into UserStatus
+                let users_status = new UsersStatus({ user_id: created_user._id });
+                await users_status.save();
+
+                // Create User Conversation
+                let user_conversation = new UserConversation({
+                    user_id: created_user._id,
+                    conversation_users: [],
+                    messages: []
+                });
+                await user_conversation.save();
+
+                return res.json(created_user);
+            });
+        });
+    }
 }
 
 const login = async (req, res) => {
@@ -91,25 +100,39 @@ const login = async (req, res) => {
 
     const payload = {
         id: user._id,
+        name: user.name,
         username: user.username,
         email: user.email
     }
 
     // Remove if it is exists
-    await UsersStatus.findOneAndRemove({ user_id: payload.id });
-    
-    // Insert Data into UserStatus
-    let users_status = new UsersStatus({ socket_id: socketClient.id, user_id: payload.id, active: true });
-    await users_status.save();
+    await UsersStatus.findOneAndUpdate({ user_id: payload.id }, { socket_id: socketClient.id, active: true });
 
     // Create token 
     let SECRET_KEY = process.env.SECRET_OR_KEY;
-    jwt.sign(payload, SECRET_KEY, { expiresIn: 3600 }, (err, token) => {
+    jwt.sign(payload, SECRET_KEY, { expiresIn: 36000 }, (err, token) => {
         return res.json({
             success: true,
             user: user,
             token: 'Bearer ' + token
         });
+    });
+}
+
+const logout  = async (req, res) => {
+    const validationRules = {
+        'user_id': 'required'
+    }
+
+    let errors = validation(req.body, validationRules, {});
+    if (Object.keys(errors).length > 0) {
+        return res.status(422).json(errors);
+    }
+
+    await UsersStatus.findOneAndUpdate({ user_id: req.body.user_id }, { socket_id: null, active: false });
+
+    res.json({
+        'message': 'Logout Successfully'
     });
 }
 
@@ -207,22 +230,9 @@ const changePassword = (req, res) => {
         .catch((err) => res.json(err))
 }
 
-const removeUserInStatusList = async (req, res) => {
-    try {
-        await UsersStatus.findOneAndRemove({ user_id: req.params.user_id });
-    } catch (err) {
-        return res.status(500).json(err);
-    }
-
-    res.status(200).json({
-        message: "Successfully removed user",
-        error: false
-    });
-}
-
 exports.initSocketInAuth = initSocketInAuth;
 exports.register = register;
 exports.login = login;
+exports.logout = logout;
 exports.resetPassword = resetPassword;
 exports.changePassword = changePassword;
-exports.removeUserInStatusList = removeUserInStatusList;
