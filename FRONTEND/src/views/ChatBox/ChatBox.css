@@ -83,9 +83,9 @@
     overflow-y: auto;
 }
 
-/* #chatbox #chatbox_row2 #chatbox_col2 #messages::-webkit-scrollbar {
+#chatbox #chatbox_row2 #chatbox_col2 #messages::-webkit-scrollbar {
     display: none;
-} */
+}
 
 #chatbox #chatbox_row2 #chatbox_col2 #messages #view_profile {
     font-size: small;
