@@ -9,6 +9,8 @@ const UserConversationSchema = new Schema({
             'receiver_name': { type: String, required: true },
             'receiver_image': { type: String },
             'receiver_username': { type: String, required: true },
+            'followers': { type: Number , default: 0 },
+            'posts': { type: Number , default: 0 },
             'date': { type: Date, default: Date.now }
         }
     ],

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from "react-redux";
-import { withRouter } from "react-router-dom";
+import { withRouter, Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import { getUserConversation, sentMessage } from "../../actions/chatActions";
@@ -227,6 +227,14 @@ class ChatBox extends Component {
                     <div className="row bg-white border border-top-0 mx-5" id="chatbox_row2">
                         {/* CONVERSATIONS */}
                         <div className="col-md-4 border-right p-0 h-100" id="chatbox_col1" style={{ overflowY: "scroll" }}>
+                            <div id="conversation_search">
+                                <input
+                                    type="search"
+                                    id="conversation_search_input"
+                                    className="form-control"
+                                    placeholder="Search"
+                                />
+                            </div>
                             <div id="conversations_block">
                                 <Conversations
                                     conversations={this.state.conversation.conversation_users}
@@ -238,8 +246,8 @@ class ChatBox extends Component {
 
                         <EntryMessageLabel show={!this.state.current_user} />
 
-                        <MessagesColumn 
-                            show={!this.state.details_clicked && this.state.current_user} 
+                        <MessagesColumn
+                            show={!this.state.details_clicked && this.state.current_user}
                             state={this.state}
                             onCloseEmojiSticker={() => this.setState({ sticker_clicked: false })}
                             onEmojiPickedUp={() => this.imagePicked}
@@ -286,7 +294,7 @@ const EntryMessageLabel = ({ show }) => {
     return (
         <div className="col-md-8 p-5 h-100" id="chatbox_col2">
             <div>
-                <div className="w-100 d-block" style={{ marginLeft: '35%', marginRight: '40%' }}>
+                <div className="w-100 d-block d-flex justify-content-center">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="120" height="120"
@@ -297,14 +305,14 @@ const EntryMessageLabel = ({ show }) => {
                         <path d="M4.98 4a.5.5 0 0 0-.39.188L1.54 8H6a.5.5 0 0 1 .5.5 1.5 1.5 0 1 0 3 0A.5.5 0 0 1 10 8h4.46l-3.05-3.812A.5.5 0 0 0 11.02 4H4.98zm9.954 5H10.45a2.5 2.5 0 0 1-4.9 0H1.066l.32 2.562a.5.5 0 0 0 .497.438h12.234a.5.5 0 0 0 .496-.438L14.933 9zM3.809 3.563A1.5 1.5 0 0 1 4.981 3h6.038a1.5 1.5 0 0 1 1.172.563l3.7 4.625a.5.5 0 0 1 .105.374l-.39 3.124A1.5 1.5 0 0 1 14.117 13H1.883a1.5 1.5 0 0 1-1.489-1.314l-.39-3.124a.5.5 0 0 1 .106-.374l3.7-4.625z" />
                     </svg>
                 </div>
-                <div className="w-100 d-block" style={{ marginLeft: '30%', marginRight: '40%' }}>
+                <div className="w-100 d-block d-flex justify-content-center">
                     <span className="h4">Your Messages</span>
                 </div>
-                <div className="w-100 d-block" style={{ marginLeft: '5%', marginRight: '5%', marginTop: '1%' }}>
+                <div className="w-100 d-block d-flex justify-content-center">
                     <span className="h6">Send private photos and messages to a friend or group.</span>
                 </div>
 
-                <div className="w-100 d-block" style={{ marginLeft: '37%', marginRight: '40%', marginTop: '3%' }}>
+                <div className="w-100 d-block d-flex justify-content-center mt-3">
                     <button type="button" className="btn btn-primary btn-sm">Send Message</button>
                 </div>
             </div>
@@ -312,20 +320,57 @@ const EntryMessageLabel = ({ show }) => {
     )
 }
 
+const ViewProfile = ({ conversation }) => {
+    return (
+        <div className="w-100 mt-3" id="view_profile">
+            <div className="d-flex justify-content-center" id="view_profile_img">
+                <img
+                    src="https://www.clipartkey.com/mpngs/m/152-1520367_user-profile-default-image-png-clipart-png-download.png"
+                    alt=""
+                    width="116"
+                    height="100"
+                    className="rounded-circle"
+                />
+            </div>
+            <div className="d-flex justify-content-center mt-2" id="view_profile_username">
+                <span className="font-weight-bold">{conversation.receiver_name}</span>
+            </div>
+            <div className="d-flex justify-content-center mt-2" id="view_profile_insta">
+                <span>{conversation.receiver_name}</span><span className="mx-1">&middot;</span><span>Instagaram</span>
+            </div>
+            <div className="d-flex justify-content-center mt-2" id="view_profile_followers">
+                <span>{conversation.followers} followers</span><span className="mx-1">&middot;</span><span>{conversation.posts} posts</span>
+            </div>
+            <div className="d-flex justify-content-center mt-2" id="view_profile_text">
+                <span>You have followed this instagram account since 2021</span>
+            </div>
+            <div className="d-flex justify-content-center mt-2" id="view_profile_button">
+                <Link to={`profile/${conversation.receiver_username}`}>
+                    <button type="button" className="btn btn-sm btn-outline-dark">View Profile</button>
+                </Link>
+            </div>
+        </div>
+    )
+}
+
 const MessagesColumn = ({ show, state, onCloseEmojiSticker, onEmojiPickedUp, onClickEmoji, onChangeText, onSendMessage }) => {
-    if(!show) {
+    if (!show) {
         return null;
     }
-    
+
     return (
         <div className="col-md-8 p-3 h-100" id="chatbox_col2">
+
+
             {/* MESSAGES */}
             <div id="messages" onClick={() => onCloseEmojiSticker}>
+                <ViewProfile conversation={state.current_user} />
                 <Messages
                     messages={state.current_user.messages}
                     text={state.text}
                 />
             </div>
+
 
             {/* EmojiPicker */}
             <EmojiStickers

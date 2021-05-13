@@ -4,6 +4,7 @@ const JsonApiResponse = require("../helpers/JsonApiResponse");
 
 const UserConversation = require("../models/UserConversation");
 const User = require('../models/User');
+const Post = require('../models/Post');
 
 let socketClient;
 
@@ -48,6 +49,13 @@ const addUserToChat = async (req, res) => {
     } catch (error) {
         return JsonApiResponse.error(res, error.message, 500);
     }
+    
+    let posts_count;
+    try {
+        posts_count = Post.count({ user: receiver_id });
+    } catch(error) {
+        return JsonApiResponse.error(res, error.message, 500)
+    }
 
     let user_conversation;
     try {
@@ -56,11 +64,14 @@ const addUserToChat = async (req, res) => {
         return JsonApiResponse.error(res, error.message, 500);
     }
 
+
     let conversation_user_data = {
         receiver_id: receiver['_id'],
         receiver_name: receiver['name'],
         receiver_username: receiver['username'],
-        receiver_image: receiver['image']
+        receiver_image: receiver['image'],
+        followers: receiver['followers'].length,
+        posts: posts_count,
     };
 
     try {
@@ -139,9 +150,16 @@ const sendMessage = async (req, res) => {
         return JsonApiResponse.error(res, error.message, 500);
     }
 
-    let message_data = { 
-        message: req.body.message, 
-        receiver_id: receiver['_id'], 
+    let posts_count;
+    try {
+        posts_count = Post.count({ user: sender_id });
+    } catch(error) {
+        return JsonApiResponse.error(res, error.message, 500)
+    }
+
+    let message_data = {
+        message: req.body.message,
+        receiver_id: receiver['_id'],
         sender_id: sender['_id']
     };
 
@@ -156,7 +174,9 @@ const sendMessage = async (req, res) => {
             await receiver_conversation.conversation_users.push({
                 receiver_id: sender['_id'],
                 receiver_name: sender['name'],
-                receiver_username: sender['username']
+                receiver_username: sender['username'],
+                followers: sender['followers'].length,
+                posts: posts_count
             });
         }
         await receiver_conversation.messages.push(message_data);

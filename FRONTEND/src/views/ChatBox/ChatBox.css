@@ -87,6 +87,10 @@
     display: none;
 } */
 
+#chatbox #chatbox_row2 #chatbox_col2 #messages #view_profile {
+    font-size: small;
+}
+
 #chatbox #chatbox_row2 #chatbox_col2 #messages #message #message_text {
     background-color: #eeecec;
     border-radius: 23px 23px;
@@ -149,4 +153,17 @@
         margin: 0 !important;
         padding: 0 !important;
     }
+}
+
+#conversation_search_input {
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 5%;
+    width: 80%;
+    border-radius: 17px;
+    background-color: #ececec;
+}   
+
+#conversation_search_input:hover {
+    background-color: #dbdbdb;
 }
