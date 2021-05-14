@@ -13,7 +13,6 @@ export const getUserConversation = () => {
 
 export const addUserToChat = (params) => {
     return async dispatch => {
-        dispatch({ type: CHATS_LOADING });
         let response = await axios.post('http://localhost:5000/api/chats/add_user_to_chat', params);
         if (!response['data']['error']) {
             dispatch({ type: ADD_USER_TO_CHAT, payload: response['data']['data'] });
@@ -23,7 +22,6 @@ export const addUserToChat = (params) => {
 
 export const removeUserFromChat = (params) => {
     return async dispatch => {
-        dispatch({ type: CHATS_LOADING });
         let response = await axios.post('http://localhost:5000/api/chats/remove_user_from_chat', params);
         if (!response['data']['error']) {
             dispatch({ type: REMOVE_USER_FROM_CHAT, payload: response['data']['data'] });
@@ -33,7 +31,6 @@ export const removeUserFromChat = (params) => {
 
 export const sentMessage = (params) => {
     return async dispatch => {
-        dispatch({ type: CHATS_LOADING });
         let response = await axios.post('http://localhost:5000/api/chats/send_message', params);
         if (!response['data']['error']) {
             dispatch({ type: SENT_MESSAGE, payload: response['data']['data'] });
@@ -43,7 +40,6 @@ export const sentMessage = (params) => {
 
 export const deleteMessage = (params) => {
     return async dispatch => {
-        dispatch({ type: CHATS_LOADING });
         let response = await axios.post('http://localhost:5000/api/chats/delete_message', params);
         if (!response['data']['error']) {
             dispatch({ type: DELETE_MESSAGE, payload: response['data']['data'] });
