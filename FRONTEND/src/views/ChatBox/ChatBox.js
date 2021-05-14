@@ -130,9 +130,18 @@ class ChatBox extends Component {
         this.setState({ text: e.target.value });
     }
 
-    sendMessage(message, receiver_id) {
+    sendMessage(message, receiver_id, event) {
+        event.preventDefault();
         this.props.sentMessage({ user_id: receiver_id, message: message });
-        this.setState({ text: "" });
+        this.setState({ 
+            text: "", 
+            current_user: {
+                ...this.state.current_user, 
+                messages: [ ...this.state.current_user.messages, {
+                    sender_id: this.props.auth.user['_id'], receiver_id, message
+                }]
+            } 
+        });
     }
 
     imagePicked = (event, emojiObj) => {
@@ -237,6 +246,7 @@ class ChatBox extends Component {
                             </div>
                             <div id="conversations_block">
                                 <Conversations
+                                    loading_conversations={this.props.chats.loading}
                                     conversations={this.state.conversation.conversation_users}
                                     getCurrentUser={(id) => this.getCurrentUserMessages(id)}
                                     users_statuses={this.props.users_statuses}
@@ -253,7 +263,7 @@ class ChatBox extends Component {
                             onEmojiPickedUp={() => this.imagePicked}
                             onClickEmoji={() => this.setState({ sticker_clicked: !this.state.sticker_clicked })}
                             onChangeText={(e) => this.onChange(e)}
-                            onSendMessage={(text, receiver_id) => this.sendMessage(text, receiver_id)}
+                            onSendMessage={(text, receiver_id, event) => this.sendMessage(text, receiver_id, event)}
                         />
 
                         <ChatDetails show={this.state.details_clicked} />
@@ -363,12 +373,9 @@ const MessagesColumn = ({ show, state, onCloseEmojiSticker, onEmojiPickedUp, onC
 
 
             {/* MESSAGES */}
-            <div id="messages" onClick={() => onCloseEmojiSticker}>
+            <div id="messages" onClick={onCloseEmojiSticker}>
                 <ViewProfile conversation={state.current_user} />
-                <Messages
-                    messages={state.current_user.messages}
-                    text={state.text}
-                />
+                <Messages messages={state.current_user.messages} text={state.text} />
             </div>
 
 
@@ -394,8 +401,8 @@ const MessagesColumn = ({ show, state, onCloseEmojiSticker, onEmojiPickedUp, onC
                     onChange={onChangeText}
                     value={state.text}
                     onKeyPress={
-                        event => event.key === 'Enter'
-                            ? onSendMessage(state.text, state.current_user.receiver_id)
+                        event => event.key === 'Enter' && !event.shiftKey
+                            ? onSendMessage(state.text, state.current_user.receiver_id, event)
                             : null
                     }
                 />

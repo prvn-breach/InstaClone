@@ -52,7 +52,7 @@ const addUserToChat = async (req, res) => {
     
     let posts_count;
     try {
-        posts_count = Post.count({ user: receiver_id });
+        posts_count = await Post.count({ user: receiver_id });
     } catch(error) {
         return JsonApiResponse.error(res, error.message, 500)
     }
@@ -152,7 +152,7 @@ const sendMessage = async (req, res) => {
 
     let posts_count;
     try {
-        posts_count = Post.count({ user: sender_id });
+        posts_count = await Post.count({ user: sender_id });
     } catch(error) {
         return JsonApiResponse.error(res, error.message, 500)
     }
