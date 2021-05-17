@@ -106,7 +106,7 @@ const login = async (req, res) => {
     }
 
     // Remove if it is exists
-    await UsersStatus.findOneAndUpdate({ user_id: payload.id }, { socket_id: socketClient.id, active: true });
+    await UsersStatus.findOneAndUpdate({ user_id: payload.id }, { socket_id: null, active: true });
 
     // Create token 
     let SECRET_KEY = process.env.SECRET_OR_KEY;

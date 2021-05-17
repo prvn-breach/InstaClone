@@ -31,26 +31,7 @@ class NewsFeed extends Component {
         this.postsComponent = React.createRef();
         this.modalRef = React.createRef();
     }
-
-    componentDidMount() {
-        this.props.getPosts();
-        this.props.getSuggestions();
-        this.onSocketOpen();
-        window.scrollTo(0,0);
-    }
-
-    componentWillUnmount() {
-        socket.off("getPosts", this.onGetPostsSocketEventHanlder);
-        socket.off("createPost", this.onCreatePostSocketEventHanlder);
-        socket.off("updatePost", this.onUpdatePostSocketEventHanlder);
-        socket.off("deletePost", this.onDeletePostSocketEventHanlder);
-        socket.off("likePost", this.onLikePostSocketEventHanlder);
-        socket.off("unlikePost", this.onUnlikePostSocketEventHanlder);
-        socket.off("commentPost", this.onCommentPostSocketEventHanlder);
-        socket.off('followUser', this.onFollowUserSocketEventHanlder);
-        socket.off('unfollowUser', this.onUnfollowUserSocketEventHanlder);
-    }
-
+    
     componentWillReceiveProps() {
         if (this.props.errors['error']) {
             // let error_message= this.props.errors['message'];
@@ -61,7 +42,19 @@ class NewsFeed extends Component {
         }
     }
 
-    onSocketOpen() {
+    componentDidMount() {
+        this.props.getPosts();
+        this.props.getSuggestions();
+        this.socketOn();
+        window.scrollTo(0,0);
+    }
+
+    componentWillUnmount() {
+        this.socketOff();
+    }
+
+
+    socketOn() {
         socket.on("getPosts", this.onGetPostsSocketEventHanlder);
         socket.on("createPost", this.onCreatePostSocketEventHanlder);
         socket.on("updatePost", this.onUpdatePostSocketEventHanlder);
@@ -71,6 +64,18 @@ class NewsFeed extends Component {
         socket.on("commentPost", this.onCommentPostSocketEventHanlder);
         socket.on('followUser', this.onFollowUserSocketEventHanlder);
         socket.on('unfollowUser', this.onUnfollowUserSocketEventHanlder);
+    }
+
+    socketOff() {
+        socket.off("getPosts", this.onGetPostsSocketEventHanlder);
+        socket.off("createPost", this.onCreatePostSocketEventHanlder);
+        socket.off("updatePost", this.onUpdatePostSocketEventHanlder);
+        socket.off("deletePost", this.onDeletePostSocketEventHanlder);
+        socket.off("likePost", this.onLikePostSocketEventHanlder);
+        socket.off("unlikePost", this.onUnlikePostSocketEventHanlder);
+        socket.off("commentPost", this.onCommentPostSocketEventHanlder);
+        socket.off('followUser', this.onFollowUserSocketEventHanlder);
+        socket.off('unfollowUser', this.onUnfollowUserSocketEventHanlder);
     }
 
     onGetPostsSocketEventHanlder = () => {
