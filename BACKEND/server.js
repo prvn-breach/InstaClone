@@ -7,13 +7,6 @@ const path = require('path');
 const http = require("http");
 const socketio = require('socket.io');
 
-
-// Initialize Socket
-const { initSocketInPosts } = require("./controllers/PostController");
-const { initSocketInUsers } = require("./controllers/UserController");
-const { initSocketInAuth} = require("./controllers/AuthController");
-const { initSocketInChat } = require('./controllers/ChatController');
-
 const app = express();
 
 const server = http.createServer(app);
@@ -25,11 +18,19 @@ const io = socketio(server, {
     }
 });
 
-io.on('connect', (socketClient) => {
-    initSocketInAuth(socketClient);
-    initSocketInPosts(socketClient);
-    initSocketInUsers(socketClient);
-    initSocketInChat(socketClient);
+const { addUser, getUser } = require("./users");
+
+io.on('connection', (socketClient) => {
+    let user_id = socketClient.handshake.query.user;
+    if (user_id != undefined) {
+        addUser( user_id, socketClient );
+    }
+    socketClient.on('typing', (user_id) => {
+        let client = getUser(user_id);
+        if (client){
+            client.emit('typing');
+        }
+    });
 });
 
 // bodyParser Middlware

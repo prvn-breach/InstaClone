@@ -3,6 +3,8 @@ import { connect } from "react-redux";
 import { withRouter, Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
+import socket from "../../service/socket";
+
 import { getUserConversation, sentMessage } from "../../actions/chatActions";
 
 import Conversations from "./Conversations/Conversations";
@@ -22,7 +24,9 @@ class ChatBox extends Component {
             sticker_clicked: false,
             show_conversations: true,
             current_user: null,
-            conversation: { conversation_users: [] }
+            conversation: { conversation_users: [] },
+            socketConnected: false,
+            socketEvent: null,
         };
         this.onChange = this.onChange.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
@@ -35,6 +39,10 @@ class ChatBox extends Component {
                 this.getCurrentUserMessages(this.state.current_user['receiver_id']);
             }
         }
+        if (this.props.auth.isAuthenticated && !this.state.socketConnected) {
+            this.setState({ socketConnected: true, socketEvent: socket(this.props.auth.user['_id']) });
+            setTimeout(() => this.socketOn(), 100);
+        }
     }
 
     componentDidMount() {
@@ -45,6 +53,7 @@ class ChatBox extends Component {
     }
 
     componentWillUnmount() {
+        this.socketOff();
         this.displayNavbars();
         window.removeEventListener("resize", this.responseWindowResize);
     }
@@ -54,6 +63,41 @@ class ChatBox extends Component {
         let messages_elements = document.getElementById('messages');
         if (messages_elements) {
             messages_elements.scrollTo(0, messages_elements.scrollHeight)
+        }
+    }
+
+    socketOn() {
+        // let socketEvent = socket(this.props.auth.user['_id']);
+        this.state.socketEvent.on('sendMessage', this.onSendMessageSocketEventHandler);
+        this.state.socketEvent.on('typing', this.onTypingSocketEventHandler);
+    }
+
+    socketOff() {
+        // let socketEvent = socket(this.props.auth.user['_id']);
+        this.state.socketEvent.off('sendMessage', this.onSendMessageSocketEventHandler);
+    }
+
+    onSendMessageSocketEventHandler = ({ message, new_conversation }) => {
+        console.log("MESSAGE RECEIVED..");
+        let current_user = { ...this.state.current_user, messages: [...this.state.current_user.messages, message] };
+
+        let conversation;
+        if (new_conversation) {
+            conversation = {
+                ...this.state.conversation,
+                conversation_users: [...this.state.conversation.conversation_users, new_conversation],
+                messages: [...this.state.conversation.messages, message]
+            }
+        } else {
+            conversation = { ...this.state.conversation, messages: [...this.state.conversation.messages, message] };
+        }
+
+        this.setState({ current_user, conversation });
+    }
+
+    onTypingSocketEventHandler = () => {
+        if (this.state.current_user) {
+            console.log("TYPING..");
         }
     }
 
@@ -110,7 +154,7 @@ class ChatBox extends Component {
     }
 
     controlColumns = (value) => {
-        this.setState({ show_conversations: true });
+        this.setState({ show_conversations: true, current_user: null });
         this.showColumn();
     }
 
@@ -127,20 +171,28 @@ class ChatBox extends Component {
     }
 
     onChange(e) {
+        this.state.socketEvent.emit('typing', this.state.current_user.receiver_id);
         this.setState({ text: e.target.value });
     }
 
     sendMessage(message, receiver_id, event) {
         event.preventDefault();
         this.props.sentMessage({ user_id: receiver_id, message: message });
-        this.setState({ 
-            text: "", 
+        let new_message = {
+            sender_id: this.props.auth.user['_id'],
+            receiver_id,
+            message
+        }
+        this.setState({
+            text: "",
             current_user: {
-                ...this.state.current_user, 
-                messages: [ ...this.state.current_user.messages, {
-                    sender_id: this.props.auth.user['_id'], receiver_id, message
-                }]
-            } 
+                ...this.state.current_user,
+                messages: [...this.state.current_user.messages, new_message]
+            },
+            conversation: {
+                ...this.state.conversation,
+                messages: [...this.state.conversation.messages, new_message]
+            }
         });
     }
 
@@ -420,7 +472,7 @@ const MessagesColumn = ({ show, state, onCloseEmojiSticker, onEmojiPickedUp, onC
                     </svg>
                 </span>}
 
-                {state.text && <span className="text-primary" style={{ cursor: "pointer" }} onClick={() => onSendMessage(state.text, state.current_user.receiver_id)}>Send</span>}
+                {state.text && <span className="text-primary" style={{ cursor: "pointer" }} onClick={(event) => onSendMessage(state.text, state.current_user.receiver_id, event)}>Send</span>}
             </div>
         </div>
     )

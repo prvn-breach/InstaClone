@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useHistory } from "react-router-dom";
-import { socket } from "../../../service/socket";
+// import { socket } from "../../../service/socket";
 
 import {
     Container, CssBaseline, Typography, Avatar, TextField,

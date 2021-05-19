@@ -4,7 +4,6 @@ const isEmpty = require('../validation/is-empty');
 // Load Models
 const User = require('../models/User');
 const UsersStatus = require('../models/UsersStatus');
-// const { post } = require('../routes/api/auth');
 
 let socketClient;
 

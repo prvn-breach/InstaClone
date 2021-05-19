@@ -11,6 +11,7 @@ export default class Messages extends Component {
         return (
             <React.Fragment>
                 {messages}
+                <span>Praveen Typing...</span>
             </React.Fragment>
         )
     }

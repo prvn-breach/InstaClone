@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import { socket } from "../../service/socket";
+import socket from "../../service/socket";
 
 import { getPosts, deletePost, likePost, unLikePost, createComment } from "../../actions/postActions";
 import { getSuggestions, followUser, unfollowUser } from "../../actions/userActions";
@@ -21,104 +21,119 @@ class NewsFeed extends Component {
 
     constructor() {
         super();
-        this.postsProps = null;
-
         this.state = {
             openPostMenuModal: false,
-            openCommentModal: false
+            openCommentModal: false,
+            socketConnected: false,
+            postsProps: null
         }
 
         this.postsComponent = React.createRef();
         this.modalRef = React.createRef();
     }
-    
+
     componentWillReceiveProps() {
-        if (this.props.errors['error']) {
-            // let error_message= this.props.errors['message'];
-            if (window.confirm("There is something problem in sockets please refresh this page to resolve this issue...")) {
-                console.log("PAGE REFRESHED...");
-                window.reload(true);
-            }
+        // if (this.props.errors['error']) {
+        //     // let error_message= this.props.errors['message'];
+        //     if (window.confirm("There is something problem in sockets please refresh this page to resolve this issue...")) {
+        //         console.log("PAGE REFRESHED...");
+        //         window.reload(true);
+        //     }
+        // }
+        if (!this.props.posts.getPostsLoading) {
+            this.setState({ postsProps: this.props.posts });
+        }
+
+        if (this.props.auth.isAuthenticated && !this.state.socketConnected) {
+            this.socketOn();
+            this.setState({ socketConnected: true })
         }
     }
 
     componentDidMount() {
         this.props.getPosts();
         this.props.getSuggestions();
-        this.socketOn();
-        window.scrollTo(0,0);
+        // this.socketOn();
+        window.scrollTo(0, 0);
     }
 
     componentWillUnmount() {
         this.socketOff();
     }
 
-
     socketOn() {
-        socket.on("getPosts", this.onGetPostsSocketEventHanlder);
-        socket.on("createPost", this.onCreatePostSocketEventHanlder);
-        socket.on("updatePost", this.onUpdatePostSocketEventHanlder);
-        socket.on("deletePost", this.onDeletePostSocketEventHanlder);
-        socket.on("likePost", this.onLikePostSocketEventHanlder);
-        socket.on("unlikePost", this.onUnlikePostSocketEventHanlder);
-        socket.on("commentPost", this.onCommentPostSocketEventHanlder);
-        socket.on('followUser', this.onFollowUserSocketEventHanlder);
-        socket.on('unfollowUser', this.onUnfollowUserSocketEventHanlder);
+        let socketEvent = socket(this.props.auth.user['_id']);
+        socketEvent.on("getPosts", this.onGetPostsSocketEventHandler);
+        socketEvent.on("createPost", this.onCreatePostSocketEventHandler);
+        socketEvent.on("updatePost", this.onUpdatePostSocketEventHandler);
+        socketEvent.on("deletePost", this.onDeletePostSocketEventHandler);
+        socketEvent.on("likePost", this.onLikePostSocketEventHandler);
+        socketEvent.on("unlikePost", this.onUnlikePostSocketEventHandler);
+        socketEvent.on("commentPost", this.onCommentPostSocketEventHandler);
+        socketEvent.on('followUser', this.onFollowUserSocketEventHandler);
+        socketEvent.on('unfollowUser', this.onUnfollowUserSocketEventHandler);
     }
 
     socketOff() {
-        socket.off("getPosts", this.onGetPostsSocketEventHanlder);
-        socket.off("createPost", this.onCreatePostSocketEventHanlder);
-        socket.off("updatePost", this.onUpdatePostSocketEventHanlder);
-        socket.off("deletePost", this.onDeletePostSocketEventHanlder);
-        socket.off("likePost", this.onLikePostSocketEventHanlder);
-        socket.off("unlikePost", this.onUnlikePostSocketEventHanlder);
-        socket.off("commentPost", this.onCommentPostSocketEventHanlder);
-        socket.off('followUser', this.onFollowUserSocketEventHanlder);
-        socket.off('unfollowUser', this.onUnfollowUserSocketEventHanlder);
+        let socketEvent = socket(this.props.auth.user['_id']);
+        socketEvent.off("getPosts", this.onGetPostsSocketEventHandler);
+        socketEvent.off("createPost", this.onCreatePostSocketEventHandler);
+        socketEvent.off("updatePost", this.onUpdatePostSocketEventHandler);
+        socketEvent.off("deletePost", this.onDeletePostSocketEventHandler);
+        socketEvent.off("likePost", this.onLikePostSocketEventHandler);
+        socketEvent.off("unlikePost", this.onUnlikePostSocketEventHandler);
+        socketEvent.off("commentPost", this.onCommentPostSocketEventHandler);
+        socketEvent.off('followUser', this.onFollowUserSocketEventHandler);
+        socketEvent.off('unfollowUser', this.onUnfollowUserSocketEventHandler);
     }
 
-    onGetPostsSocketEventHanlder = () => {
+    onGetPostsSocketEventHandler = () => {
         this.postsComponent.current.forceUpdate();
     }
 
-    onCreatePostSocketEventHanlder = (post) => {
-        let auth_user = this.props.auth.user;
-        // console.log("This Post Belongs To Current User: " + (post['user'] === auth_user['_id']));
-        // console.log("This Post Belongs To Current User Followers: " + auth_user['followers'].includes(post['user']));
-        // console.log("This Post Belongs To Current User Follwing: " + auth_user['following'].includes(post['user']));
-        if (
-            post['user'] === auth_user['_id'] ||
-            auth_user['followers'].includes(post['user']) ||
-            auth_user['following'].includes(post['user'])
-        ) {
-            this.postsProps.posts.unshift(post);
-            this.postsComponent.current.forceUpdate();
-        }
+    onCreatePostSocketEventHandler = (post) => {
+        let posts = this.state.postsProps.posts;
+        posts.unshift(post);
+        this.setState({ postsProps: { ...this.state.postsProps, posts: posts } });
     }
 
-    onDeletePostSocketEventHanlder = () => {
-        this.props.getPosts();
+    onDeletePostSocketEventHandler = (post_id) => {
+        let posts = this.state.postsProps.posts;
+        let index = posts.findIndex(post => post._id === post_id);
+        posts.splice(index, 1);
+        this.setState({ postsProps: { ...this.state.postsProps, posts: posts } });
         this.postMenuModal.current.closeModal();
     }
 
-    onUpdatePostSocketEventHanlder = (post) => {
-        this.updatePost(post);
+    onUpdatePostSocketEventHandler = (post) => {
     }
 
-    onLikePostSocketEventHanlder = (post) => {
-        this.updatePost(post);
+    onLikePostSocketEventHandler = ({ post_id, user_id }) => {
+        let posts = this.state.postsProps.posts;
+        let index = posts.findIndex(post => post._id === post_id);
+        posts[index]['likes'].unshift({ user: user_id });
+        this.setState({ postsProps: { ...this.state.postsProps, posts: posts } });
+        this.postsComponent.current.forceUpdate();
     }
 
-    onUnlikePostSocketEventHanlder = (post) => {
-        this.updatePost(post);
+    onUnlikePostSocketEventHandler = ({ post_id, user_id }) => {
+        let posts = this.state.postsProps.posts;
+        let index = posts.findIndex(post => post._id === post_id);
+        let removed_like_index = posts[index]['likes'].findIndex(like => like.user === user_id);
+        posts[index]['likes'].splice(removed_like_index, 1);
+        this.setState({ postsProps: { ...this.state.postsProps, posts: posts } });
+        this.postsComponent.current.forceUpdate();
     }
 
-    onCommentPostSocketEventHanlder = (post) => {
-        this.updatePost(post);
+    onCommentPostSocketEventHandler = ({ post_id, comment }) => {
+        let posts = this.state.postsProps.posts;
+        let index = posts.findIndex(post => post._id === post_id);
+        posts[index]['comments'].unshift(comment);
+        this.setState({ postsProps: { ...this.state.postsProps, posts: posts } });
+        this.postsComponent.current.forceUpdate();
     }
 
-    onFollowUserSocketEventHanlder = (res) => {
+    onFollowUserSocketEventHandler = (res) => {
         let auth_user = this.props.auth.user;
         if (
             auth_user['_id'] === res['current_user']['_id'] ||
@@ -128,7 +143,7 @@ class NewsFeed extends Component {
         }
     }
 
-    onUnfollowUserSocketEventHanlder = (res) => {
+    onUnfollowUserSocketEventHandler = (res) => {
         let auth_user = this.props.auth.user;
         if (
             auth_user['_id'] === res['current_user']['_id'] ||
@@ -136,12 +151,6 @@ class NewsFeed extends Component {
         ) {
             this.props.getSuggestions();
         }
-    }
-
-    updatePost(updatedPost) {
-        const index = this.postsProps.posts.findIndex(post => post._id === updatedPost._id);
-        this.postsProps.posts[index] = updatedPost;
-        this.postsComponent.current.forceUpdate();
     }
 
     postMenuClickedHandler(post) {
@@ -177,7 +186,6 @@ class NewsFeed extends Component {
     }
 
     render() {
-        this.postsProps = this.props.posts;
         return (
             <div className="container mt-3 pt-5" id="news_feed">
                 <div className="row">
@@ -186,7 +194,7 @@ class NewsFeed extends Component {
                     <div className="col-lg-7 p-0" id="posts_column">
                         <Posts
                             current_user={this.props.auth.user}
-                            posts={this.postsProps}
+                            posts={this.state.postsProps}
                             postMenuClickedHandler={(post) => this.postMenuClickedHandler(post)}
                             commentMenuClickedHandler={(post) => this.commentMenuClickedHandler(post)}
                             likePostHandler={(post_id) => this.likeThePost(post_id)}

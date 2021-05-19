@@ -7,7 +7,6 @@ import Stories from "../Stories/Stories";
 import "./Posts.css"
 
 export default class Posts extends Component {
-
     postMenuClick(post) {
         this.props.postMenuClickedHandler(post);
     }
@@ -29,7 +28,11 @@ export default class Posts extends Component {
     }
 
     render() {
-        if (this.props.posts.loading) {
+        if (this.props.posts === null) {
+            return null;
+        }
+        
+        if (this.props.posts.getPostsLoading) {
             let post_loading_waves = [];
             for (let i = 0; i < 3; i++) {
                 post_loading_waves[i] = <PostLoadingWave key={i} />

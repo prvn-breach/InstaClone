@@ -1,15 +1,11 @@
 const validation = require('../helpers/validate');
 const isEmpty = require('../validation/is-empty');
+const { getUser } = require("../users");
+const JsonApiResponse = require("../helpers/JsonApiResponse");
 
 // Load Models
 const Post = require('../models/Post');
 const User = require('../models/User');
-
-let socketClient;
-
-const initSocketInPosts = (client) => {
-    socketClient = client;
-}
 
 const getConnectionsUserIdsList = async (user_id) => {
     let current_user;
@@ -39,12 +35,12 @@ const getPosts = async (req, res) => {
     try {
         posts = await Post.find({ 'user': { $in: user_ids } }).sort({ date: -1 });
     } catch (error) {
-        return res.status(500).json({ success: false, error: "Something Went Wrong For Getting Posts!" });
+        return JsonApiResponse.error(res, error.message, 500);
     }
 
     // let all_posts = current_user_posts.concat(posts);
     // socketClient.emit('getPosts', all_posts);
-    return res.json(posts);
+    return JsonApiResponse.success(res, 'Successfully fetched posts', posts);
 }
 
 const getCurrentUserPosts = async (req, res) => {
@@ -70,7 +66,7 @@ const createPost = async (req, res) => {
 
     let errors = validation(req.body, validationRules, {});
     if (Object.keys(errors).length > 0) {
-        return res.status(422).json(errors);
+        return JsonApiResponse.error(res, 'Invalid request data', 422, errors);
     }
 
     const { text } = req.body;
@@ -85,152 +81,276 @@ const createPost = async (req, res) => {
         user: id
     })
 
+    let user_ids = await getConnectionsUserIdsList(req.user._id);
+
     try {
-        const post = await newPost.save();
-        res.json(post);
-        socketClient.emit('createPost', post);
-        socketClient.broadcast.emit('createPost', post);
+        let created_post = await newPost.save();
+        user_ids.forEach(user_id => {
+            if (user_id != req.user._id.toString()) {
+                let client = getUser(user_id);
+                if (client) {
+                    client.emit('createPost', created_post);
+                }
+            }
+        });
+        return JsonApiResponse.success(res, 'Successfully created post', created_post);
+        // socketClient.emit('createPost', post);
+        // socketClient.broadcast.emit('createPost', post);
     } catch (error) {
-        res.status(500).json(error);
+        return JsonApiResponse.error(res, error.message, 500);
     }
 }
 
-const updatePost = (req, res) => {
+const updatePost = async (req, res) => {
 
     const validationRules = {
+        'post_id': 'required',
         'text': 'required|string'
     }
 
     let errors = validation(req.body, validationRules, {});
     if (Object.keys(errors).length > 0) {
-        return res.status(422).json(errors);
+        return JsonApiResponse.error(res, 'Invalid request data', 422, errors);
     }
 
-    const { text } = req.body;
+    const { text, post_id } = req.body;
 
-    Post.findById(req.params.id).then((post) => {
+    let post;
 
+    try {
+        post = await Post.findById(post_id);
         if (isEmpty(post)) {
-            return res.status(404).json({ postnotfound: 'No post found' });
+            return JsonApiResponse.error(res, 'Post not found', 404);
         }
+    } catch (error) {
+        return JsonApiResponse.error(res, error.message, 500);
+    }
 
-        if (post.user.toString() !== req.user.id) {
-            return res.status(404).json({ notauthorized: 'User not authorized' });
-        }
+    if (post.user.toString() !== req.user.id) {
+        return res.status(404).json({ notauthorized: 'User not authorized' });
+    }
 
-        post.text = text;
+    let user_ids = await getConnectionsUserIdsList(post['user']);
 
-        post.save()
-            .then(post => {
-                res.json(post);
-                socketClient.emit('updatePost', post);
-                socketClient.broadcast.emit('updatePost', post);
-            })
-            .catch(err => res.status(500).json(err));
-    })
+    post.text = text;
+
+    try {
+        let updated_post = await post.save();
+        user_ids.forEach(user_id => {
+            if (user_id != req.user._id.toString()) {
+                let client = getUser(user_id);
+                if (client) {
+                    client.emit('updatePost', updated_post);
+                }
+            }
+        });
+        return JsonApiResponse.success(res, 'Successfully updated post', updated_post);
+    } catch (error) {
+        return JsonApiResponse.error(res, error.message, 500);
+    }
+    // socketClient.emit('updatePost', post);
+    // socketClient.broadcast.emit('updatePost', post);
 }
 
-const deletePost = (req, res) => {
-    Post.findById(req.params.id).then((post) => {
+const deletePost = async (req, res) => {
+    const validationRules = {
+        'id': 'required'
+    }
 
+    let errors = validation(req.params, validationRules, {});
+    if (Object.keys(errors).length > 0) {
+        return JsonApiResponse.error(res, 'Invalid request data', 422, errors);
+    }
+
+    let post;
+
+    try {
+        post = await Post.findById(req.params.id);
         if (isEmpty(post)) {
-            return res.status(404).json({ postnotfound: 'No post found' });
+            return JsonApiResponse.error(res, 'Post not found', 404);
         }
+    } catch (error) {
+        return JsonApiResponse.error(res, error.message, 500);
+    }
 
-        if (post.user.toString() !== req.user.id) {
-            return res.status(404).json({ notauthorized: 'User not authorized' });
-        }
+    let user_ids = await getConnectionsUserIdsList(post['user']);
 
-        post.remove()
-            .then((post) => {
-                res.json({ success: true });
-                socketClient.emit('deletePost', post);
-                socketClient.broadcast.emit('deletePost', post);
-            })
-            .catch(err => res.status(500).json(err));
-    })
-}
+    if (post.user.toString() != req.user.id) {
+        return JsonApiResponse.error(res, 'You dont have a permission to delete other user post', 401);
+    }
 
-const likePost = (req, res) => {
-    Post.findById(req.params.id).then(post => {
-        if (post.likes.filter(like => like.user.toString() == req.user.id).length > 0) {
-            return res.status(400).json({ error: true,  message: 'User already likes this post' });
-        }
-
-        // like
-        post.likes.unshift({ user: req.user.id });
-
-        //save
-        post.save().then(post => {
-            res.json(post);
-            socketClient.emit('likePost', post);
-            socketClient.broadcast.emit('likePost', post);
+    try {
+        await post.remove();
+        user_ids.forEach(user_id => {
+            if (user_id != req.user._id.toString()) {
+                let client = getUser(user_id);
+                if (client) {
+                    client.emit('deletePost', req.params.id);
+                }
+            }
         });
-    });
+        return JsonApiResponse.success(res, 'Successfully deleted post', req.params.id);
+    } catch (error) {
+        return JsonApiResponse.error(res, error.message, 500);
+    }
+    // socketClient.emit('deletePost', post);
+    // socketClient.broadcast.emit('deletePost', post);
 }
 
-const unlikePost = (req, res) => {
-    Post.findById(req.params.id).then(post => {
-        if (post.likes.filter(
-            like => like.user.toString() == req.user.id
-        ).length === 0) {
-            return res
-                .status(400)
-                .json({ error: true,  message: 'You have not yet liked this post' });
-        }
-
-        // Remove Index
-        const removeIndex = post.likes
-            .map(item => item.user.toString())
-            .indexOf(req.user.id);
-
-        // Splice out of array
-        post.likes.splice(removeIndex, 1);
-
-        // Save
-        post.save().then(post => {
-            res.json(post);
-            socketClient.emit('unlikePost', post);
-            socketClient.broadcast.emit('unlikePost', post);
-        });
-    });
-}
-
-const comment = (req, res) => {
+const likePost = async (req, res) => {
 
     const validationRules = {
+        'id': 'required'
+    }
+
+    let errors = validation(req.params, validationRules, {});
+    if (Object.keys(errors).length > 0) {
+        return JsonApiResponse.error(res, 'Invalid request data', 422, errors);
+    }
+
+    let post;
+    try {
+        post = await Post.findById(req.params.id);
+        if (isEmpty(post)) {
+            return JsonApiResponse.error(res, 'Post not found', 404);
+        }
+    } catch (error) {
+        return JsonApiResponse.error(res, error.message, 500);
+    }
+
+    let user_ids = await getConnectionsUserIdsList(post['user']);
+    user_ids[user_ids.length] = post['user'];
+
+    if (post.likes.filter(like => like.user.toString() == req.user._id).length > 0) {
+        return JsonApiResponse.error(res, 'User already likes this post', 409);
+    }
+
+    try {
+        await post.likes.unshift({ user: req.user._id });
+        await post.save();
+        user_ids.forEach(user_id => {
+            if (user_id != req.user._id.toString()) {
+                let client = getUser(user_id);
+                // console.log(user_id);
+                // console.log(user_id != req.user._id);
+                if (client) {
+                    client.emit('likePost', { post_id: req.params.id, user_id: req.user._id });
+                }
+            }
+        });
+
+        return JsonApiResponse.success(res, 'Successfully liked post', { post_id: req.params.id, user_id: req.user._id });
+    } catch (error) {
+        return JsonApiResponse.error(res, error.message, 500);
+    }
+    // socketClient.emit('likePost', post);
+    // socketClient.broadcast.emit('likePost', post);
+}
+
+const unlikePost = async (req, res) => {
+    const validationRules = {
+        'id': 'required'
+    }
+
+    let errors = validation(req.params, validationRules, {});
+    if (Object.keys(errors).length > 0) {
+        return JsonApiResponse.error(res, 'Invalid request data', 422, errors);
+    }
+
+    let post;
+    try {
+        post = await Post.findById(req.params.id);
+        if (isEmpty(post)) {
+            return JsonApiResponse.error(res, 'Post not found', 404);
+        }
+    } catch (error) {
+        return JsonApiResponse.error(res, error.message, 500);
+    }
+
+    let user_ids = await getConnectionsUserIdsList(post['user']);
+    user_ids[user_ids.length] = post['user'];
+
+    if (post.likes.filter(like => like.user.toString() == req.user._id).length === 0) {
+        return res.status(400).json({ error: true, message: 'You have not yet liked this post' });
+    }
+
+    // Remove Index
+    const removeIndex = post.likes.map(item => item.user.toString()).indexOf(req.user._id);
+
+    try {
+        await post.likes.splice(removeIndex, 1);
+        await post.save();
+
+        user_ids.forEach(user_id => {
+            if (user_id != req.user._id.toString()) {
+                let client = getUser(user_id);
+                if (client) {
+                    client.emit('unlikePost', { post_id: req.params.id, user_id: req.user._id });
+                }
+            }
+        });
+
+        return JsonApiResponse.success(res, 'Successfully unliked post', { post_id: req.params.id, user_id: req.user._id });
+    } catch (error) {
+        return JsonApiResponse.error(res, error.message, 500);
+    }
+    // socketClient.emit('unlikePost', post);
+    // socketClient.broadcast.emit('unlikePost', post);
+}
+
+const comment = async (req, res) => {
+    const validationRules = {
+        'post_id': 'required',
         'text': 'required|string'
     }
 
     let errors = validation(req.body, validationRules, {});
     if (Object.keys(errors).length > 0) {
-        return res.status(422).json(errors);
+        return JsonApiResponse.error(res, 'Invalid request data', 422, errors);
     }
 
-    Post.findById(req.params.id)
-        .then(post => {
-            const { text, name, avatar } = req.body;
+    const { text, post_id } = req.body;
 
-            // Create comment
-            const newComment = {
-                text,
-                name: req.user.name,
-                username: req.user.username,
-                user: req.user.id
-            };
+    let post;
+    try {
+        post = await Post.findById(post_id);
+        if (isEmpty(post)) {
+            return JsonApiResponse.error(res, 'Post not found', 404);
+        }
+    } catch (error) {
+        return JsonApiResponse.error(res, error.message, 500);
+    }
 
-            // Add comments to array
-            post.comments.unshift(newComment);
+    let user_ids = await getConnectionsUserIdsList(post['user']);
+    user_ids[user_ids.length] = post['user'];
 
-            // Save
-            post.save().then(post => {
-                res.json(post);
-                socketClient.emit('commentPost', post);
-                socketClient.broadcast.emit('commentPost', post);
-            })
-                .catch(err => res.status(500).json(err));
-        })
-        .catch(err => res.status(404).json({ error: true,  message: 'No Post found for that ID' }));
+    // Create comment
+    const newComment = {
+        text,
+        name: req.user.name,
+        username: req.user.username,
+        user: req.user.id
+    };
+
+    try {
+        await post.comments.unshift(newComment);
+        await post.save();
+
+        user_ids.forEach(user_id => {
+            if (user_id != req.user._id.toString()) {
+                let client = getUser(user_id);
+                if (client) {
+                    client.emit('commentPost', { post_id, comment: newComment });
+                }
+            }
+        });
+
+        return JsonApiResponse.success(res, 'Successfully commented post', { post_id, comment: newComment });
+    } catch (error) {
+        return JsonApiResponse.error(res, error.message, 500);
+    }
+    // socketClient.emit('commentPost', post);
+    // socketClient.broadcast.emit('commentPost', post);
 }
 
 exports.getPosts = getPosts;
@@ -242,4 +362,3 @@ exports.deletePost = deletePost;
 exports.likePost = likePost;
 exports.unlikePost = unlikePost;
 exports.comment = comment;
-exports.initSocketInPosts = initSocketInPosts;

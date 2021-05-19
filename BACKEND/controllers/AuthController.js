@@ -10,12 +10,6 @@ const User = require('../models/User');
 const UsersStatus = require('../models/UsersStatus');
 const UserConversation = require('../models/UserConversation');
 
-let socketClient;
-
-const initSocketInAuth = (client) => {
-    socketClient = client;
-}
-
 const register = async (req, res) => {
     const validationRules = {
         'name': 'required|string|min:2',
@@ -230,7 +224,6 @@ const changePassword = (req, res) => {
         .catch((err) => res.json(err))
 }
 
-exports.initSocketInAuth = initSocketInAuth;
 exports.register = register;
 exports.login = login;
 exports.logout = logout;

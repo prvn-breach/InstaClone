@@ -14,6 +14,6 @@ router.patch('/posts/:id', passport.authenticate('jwt', { session: false }), upd
 router.delete('/posts/:id', passport.authenticate('jwt', { session: false }), deletePost);
 router.post('/posts/like/:id', passport.authenticate('jwt', { session: false }), likePost);
 router.post('/posts/unlike/:id', passport.authenticate('jwt', { session: false }), unlikePost);
-router.post('/posts/comment/:id', passport.authenticate('jwt', { session: false }), comment);
+router.post('/posts/comment', passport.authenticate('jwt', { session: false }), comment);
 
 module.exports = router
