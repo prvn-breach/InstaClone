@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 import socket from "../../service/socket";
 
 import { getUserConversation, sentMessage } from "../../actions/chatActions";
+import { getUsersStatuses } from "../../actions/userActions";
 
 import Conversations from "./Conversations/Conversations";
 import Messages from "./Messages/Messages";
@@ -18,6 +19,7 @@ class ChatBox extends Component {
 
     constructor() {
         super();
+        this.interval = null;
         this.state = {
             text: "",
             details_clicked: false,
@@ -27,6 +29,8 @@ class ChatBox extends Component {
             conversation: { conversation_users: [] },
             socketConnected: false,
             socketEvent: null,
+            days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+            months: ["Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"]
         };
         this.onChange = this.onChange.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
@@ -70,6 +74,8 @@ class ChatBox extends Component {
         // let socketEvent = socket(this.props.auth.user['_id']);
         this.state.socketEvent.on('sendMessage', this.onSendMessageSocketEventHandler);
         this.state.socketEvent.on('typing', this.onTypingSocketEventHandler);
+        this.state.socketEvent.on('active', () => this.props.getUsersStatuses());
+        this.state.socketEvent.on('inactive', () => this.props.getUsersStatuses());
     }
 
     socketOff() {
@@ -95,9 +101,22 @@ class ChatBox extends Component {
         this.setState({ current_user, conversation });
     }
 
-    onTypingSocketEventHandler = () => {
-        if (this.state.current_user) {
-            console.log("TYPING..");
+    onTypingSocketEventHandler = (sender_id) => {
+        if (this.state.current_user.receiver_id === sender_id) {
+            let conversation_users = this.state.conversation.conversation_users;
+            let index = conversation_users.findIndex(conversation_user => conversation_user.receiver_id === sender_id);
+            conversation_users[index]['typing'] = true;
+            this.setState({ current_user: { ...this.state.current_user, typing: true }, conversation: { ...this.state.conversation, conversation_users } });
+            clearInterval(this.interval);
+            let timer = 1;
+            this.interval = setInterval(() => {
+                timer++;
+                if (timer === 5) {
+                    conversation_users[index]['typing'] = false;
+                    this.setState({ current_user: { ...this.state.current_user, typing: false }, conversation: { ...this.state.conversation, conversation_users } });
+                    clearInterval(this.interval);
+                }
+            }, 200);
         }
     }
 
@@ -171,7 +190,7 @@ class ChatBox extends Component {
     }
 
     onChange(e) {
-        this.state.socketEvent.emit('typing', this.state.current_user.receiver_id);
+        this.state.socketEvent.emit('typing', { receiver_id: this.state.current_user.receiver_id, sender_id: this.state.conversation.user_id });
         this.setState({ text: e.target.value });
     }
 
@@ -201,8 +220,30 @@ class ChatBox extends Component {
         this.setState({ text: this.state.text + emojiObj.emoji });
     }
 
-    userActive() {
-        let user = this.props.users_statuses.find(user => user.user_id === this.state.current_user.receiver_id);
+    getLastSeen(lastlogoutdate, current_date) {
+        let diff = current_date - new Date(lastlogoutdate);
+        diff = diff / 1000;
+        if (diff < 60) {
+            return 'Active ' + diff.toFixed(0) + 's ago'; // seconds
+        } else if (diff >= 60 && diff < 3600) {
+            return 'Active ' + (diff / 60).toFixed(0) + 'm ago'; // minutes
+        } else if (diff >= 3600 && diff < 86400) {
+            return 'Active ' + (diff / 3600).toFixed(0) + 'h ago'; // hours
+        } else if (diff >= 86400 && diff < 432000) {
+            return 'Active ' + (diff / 86400).toFixed(0) + 'd ago'; // days
+        } else {
+            let month = this.state.months[new Date(current_date).getMonth()];
+            let day = new Date(current_date).getDate();
+            return 'Last seen on ' + month + ' ' + day;
+        }
+    }
+
+    getUserStatus(user_id) {
+        return this.props.users_statuses.find(user => user.user_id === user_id);
+    }
+
+    userActive(user_id) {
+        let user = this.getUserStatus(user_id);
         if (user) {
             return user['active'];
         }
@@ -257,12 +298,12 @@ class ChatBox extends Component {
                                             alt=""
                                         />
 
-                                        <OnlineDot show={this.userActive()} />
+                                        <OnlineDot show={this.userActive(this.state.current_user.receiver_id)} />
 
                                         <span className="d-flex flex-column mt-2">
                                             <label className="font-weight-bold mb-0">{this.state.current_user.receiver_name}</label>
                                             <label className="text-muted" style={{ fontSize: '11px' }}>{
-                                                this.userActive() ? "Active Now" : "Active 23h ago"
+                                                this.userActive(this.state.current_user.receiver_id) ? "Active Now" : this.getLastSeen(this.getUserStatus(this.state.current_user.receiver_id)['date'], new Date())
                                             }</label>
                                         </span>
                                     </div>)
@@ -301,7 +342,8 @@ class ChatBox extends Component {
                                     loading_conversations={this.props.chats.loading}
                                     conversations={this.state.conversation.conversation_users}
                                     getCurrentUser={(id) => this.getCurrentUserMessages(id)}
-                                    users_statuses={this.props.users_statuses}
+                                    userActive={(user_id) => this.userActive(user_id)}
+                                    getLastSeen={(user_id) => this.getLastSeen(this.getUserStatus(user_id)['date'], new Date())}
                                 />
                             </div>
                         </div>
@@ -427,7 +469,7 @@ const MessagesColumn = ({ show, state, onCloseEmojiSticker, onEmojiPickedUp, onC
             {/* MESSAGES */}
             <div id="messages" onClick={onCloseEmojiSticker}>
                 <ViewProfile conversation={state.current_user} />
-                <Messages messages={state.current_user.messages} text={state.text} />
+                <Messages current_user={state.current_user} text={state.text} />
             </div>
 
 
@@ -492,7 +534,8 @@ ChatBox.propTypes = {
     chats: PropTypes.object.isRequired,
     users_statuses: PropTypes.array.isRequired,
     getUserConversation: PropTypes.func.isRequired,
-    sentMessage: PropTypes.func.isRequired
+    sentMessage: PropTypes.func.isRequired,
+    getUsersStatuses: PropTypes.func.isRequired
 }
 
 const mapStateToProps = state => ({
@@ -501,4 +544,4 @@ const mapStateToProps = state => ({
     users_statuses: state.users.users_statuses
 });
 
-export default connect(mapStateToProps, { getUserConversation, sentMessage })(withRouter(ChatBox));
+export default connect(mapStateToProps, { getUserConversation, sentMessage, getUsersStatuses })(withRouter(ChatBox));

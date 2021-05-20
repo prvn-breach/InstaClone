@@ -47,7 +47,7 @@ const register = async (req, res) => {
                 let created_user = await newUser.save();
 
                 // Insert Data into UserStatus
-                let users_status = new UsersStatus({ user_id: created_user._id });
+                let users_status = new UsersStatus({ user_id: created_user._id, date: new Date() });
                 await users_status.save();
 
                 // Create User Conversation
@@ -100,7 +100,7 @@ const login = async (req, res) => {
     }
 
     // Remove if it is exists
-    await UsersStatus.findOneAndUpdate({ user_id: payload.id }, { socket_id: null, active: true });
+    await UsersStatus.findOneAndUpdate({ user_id: payload.id }, { active: true, date: new Date() });
 
     // Create token 
     let SECRET_KEY = process.env.SECRET_OR_KEY;
@@ -123,7 +123,7 @@ const logout  = async (req, res) => {
         return res.status(422).json(errors);
     }
 
-    await UsersStatus.findOneAndUpdate({ user_id: req.body.user_id }, { socket_id: null, active: false });
+    await UsersStatus.findOneAndUpdate({ user_id: req.body.user_id }, { active: false, date: new Date() });
 
     res.json({
         'message': 'Logout Successfully'

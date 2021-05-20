@@ -65,6 +65,7 @@ const addUserToChat = async (req, res) => {
         receiver_name: receiver['name'],
         receiver_username: receiver['username'],
         receiver_image: receiver['image'],
+        typing: false,
         followers: receiver['followers'].length,
         posts: posts_count,
     };
@@ -171,6 +172,7 @@ const sendMessage = async (req, res) => {
                 receiver_id: sender['_id'],
                 receiver_name: sender['name'],
                 receiver_username: sender['username'],
+                typing: false,
                 followers: sender['followers'].length,
                 posts: posts_count
             };

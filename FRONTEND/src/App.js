@@ -26,6 +26,7 @@ import Profile from "./views/Profile/Profile";
 import Accounts from "./views/Accounts/Accounts";
 import ChatBox from "./views/ChatBox/ChatBox";
 import { getUsersStatuses } from './actions/userActions';
+import socket from './service/socket';
 
 // Check auth token
 if (localStorage['jwtToken']) {
@@ -61,6 +62,8 @@ if (localStorage['jwtToken']) {
 	}
 } else {
 	if (!PUBLIC_PATHS.includes(window.location.pathname)) {
+		let socketEvent = socket(localStorage['instaUser']);
+		socketEvent.emit('inactive');
 		store.dispatch(logoutUser());
 	}
 }

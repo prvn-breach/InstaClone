@@ -20,7 +20,7 @@ class Conversation extends Component {
                         {
                             this.props.online 
                                 ? 'Active Now'
-                                : 'Active 23m ago'
+                                : this.props.getLastSeen(this.props.receiver_id)
                         }
                     </label>
                 </span>

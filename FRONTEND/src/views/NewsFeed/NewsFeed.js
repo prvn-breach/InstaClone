@@ -40,9 +40,7 @@ class NewsFeed extends Component {
         //         window.reload(true);
         //     }
         // }
-        if (!this.props.posts.getPostsLoading) {
-            this.setState({ postsProps: this.props.posts });
-        }
+        this.setState({ postsProps: this.props.posts });
 
         if (this.props.auth.isAuthenticated && !this.state.socketConnected) {
             this.socketOn();
@@ -72,6 +70,8 @@ class NewsFeed extends Component {
         socketEvent.on("commentPost", this.onCommentPostSocketEventHandler);
         socketEvent.on('followUser', this.onFollowUserSocketEventHandler);
         socketEvent.on('unfollowUser', this.onUnfollowUserSocketEventHandler);
+
+        socketEvent.emit('active', this.props.auth.user['_id']);
     }
 
     socketOff() {

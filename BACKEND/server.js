@@ -23,14 +23,23 @@ const { addUser, getUser } = require("./users");
 io.on('connection', (socketClient) => {
     let user_id = socketClient.handshake.query.user;
     if (user_id != undefined) {
-        addUser( user_id, socketClient );
+        addUser(user_id, socketClient);
     }
-    socketClient.on('typing', (user_id) => {
-        let client = getUser(user_id);
-        if (client){
-            client.emit('typing');
+    
+    socketClient.on('typing', ({ receiver_id, sender_id }) => {
+        let client = getUser(receiver_id);
+        if (client) {
+            client.emit('typing', sender_id);
         }
     });
+    
+    socketClient.on('active', () => {
+        socketClient.broadcast.emit('active');
+    });
+
+    socketClient.on('inactive', () => {
+        socketClient.broadcast.emit('active');
+    })
 });
 
 // bodyParser Middlware

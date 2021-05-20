@@ -27,12 +27,8 @@ export default class Posts extends Component {
         this.props.commentPostHandler(post_id, comment);
     }
 
-    render() {
-        if (this.props.posts === null) {
-            return null;
-        }
-        
-        if (this.props.posts.getPostsLoading) {
+    render() {        
+        if (this.props.posts === null || this.props.posts.getPostsLoading) {
             let post_loading_waves = [];
             for (let i = 0; i < 3; i++) {
                 post_loading_waves[i] = <PostLoadingWave key={i} />
